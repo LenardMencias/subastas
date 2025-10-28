@@ -5,7 +5,7 @@ const { monthsShort } = require('moment');
 const imagen = require('./imagen');
 const titulo = require('./titulo');
 const { all } = require('../rutas/rutasrol');
-//HOLA
+
 const vehiculo = db.define(
     'Vehiculo',
     {
