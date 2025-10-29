@@ -73,13 +73,19 @@ exports.Guardar = async (req, res) => {
 
     const { monto, usuarioId, vehiculoId, tiempoId } = req.body;
     try {
-        // Si no se proporciona un tiempoId, buscar el tiempo por defecto (5 horas)
         let tiempoFinal = tiempoId;
         if (!tiempoId) {
             const tiempoDefault = await modeloTiempo.findOne({
-                where: { duracion: 300 } // 5 horas en minutos
+                where: { duracion: 300, activo: true } 
             });
-            if (tiempoDefault) {
+            if (!tiempoDefault) {
+                const nuevoTiempo = await modeloTiempo.create({
+                    duracion: 300,
+                    descripcion: 'Tiempo por defecto (5 horas)',
+                    activo: true
+                });
+                tiempoFinal = nuevoTiempo.id;
+            } else {
                 tiempoFinal = tiempoDefault.id;
             }
         }
@@ -88,7 +94,8 @@ exports.Guardar = async (req, res) => {
             monto: monto,
             usuarioId: usuarioId,
             vehiculoId: vehiculoId,
-            tiempoId: tiempoFinal
+            tiempoId: tiempoFinal,
+            estado: 'activa'
         });
 
         const apuestaConRelaciones = await modeloApuesta.findByPk(nuevaApuesta.id, {

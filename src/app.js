@@ -14,6 +14,8 @@ const ModeloVehiculo = require('./modelos/vehiculo');
 const ModeloImagenVehiculo = require('./modelos/imagenvehiculo');
 const ModeloApuesta = require('./modelos/apuesta');
 const ModeloTiempo = require('./modelos/tiempo');
+const ModeloCompraDirecta = require('./modelos/compradirecta');
+const rutasCompraDirecta = require('./rutas/rutascompradirecta');
 const app = express();
 
 db.authenticate().then(async () => {
@@ -38,6 +40,9 @@ db.authenticate().then(async () => {
 	await ModeloApuesta.sync()
 		.then(() => console.log('Modelo apuesta creado correctamente'))
 		.catch((er) => console.error(er));
+	await ModeloCompraDirecta.sync()
+		.then(() => console.log('Modelo compra directa creado correctamente'))
+		.catch((er) => console.error(er));
 }).catch((er) => {
 	console.error('Error conectando a la base de datos:', er);
 });
@@ -52,6 +57,7 @@ app.use('/api/vehiculos', rutasvehiculo);
 app.use('/api/imagenesvehiculo', rutasImagenVehiculo);
 app.use('/api/apuestas', rutasApuesta);
 app.use('/api/tiempos', rutasTiempo);
+app.use('/api/comprasdirectas', rutasCompraDirecta);
 app.listen(app.get('port'), () => {
 	console.log('Servidor iniciado en el puerto', app.get('port'));
 });

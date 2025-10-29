@@ -66,10 +66,24 @@ const Apuesta = db.define('Apuesta', {
     tableName: 'apuestas',
     timestamps: true,
     hooks: {
+        beforeValidate: (apuesta) => {
+            const fechaInicio = new Date();
+            apuesta.fechaInicio = fechaInicio;
+            apuesta.fechaFin = new Date(fechaInicio.getTime() + (300 * 60000));
+        },
         beforeCreate: async (apuesta) => {
-            const tiempo = await Tiempo.findByPk(apuesta.tiempoId);
-            const duracionMinutos = tiempo ? tiempo.duracion : 300; 
-            apuesta.fechaFin = new Date(new Date().getTime() + duracionMinutos * 60000);
+            try {
+                if (apuesta.tiempoId) {
+                    const tiempo = await Tiempo.findByPk(apuesta.tiempoId);
+                    if (tiempo) {
+                        const duracionMinutos = tiempo.duracion;
+                        apuesta.fechaFin = new Date(apuesta.fechaInicio.getTime() + (duracionMinutos * 60000));
+                    }
+                }
+            } catch (error) {
+                console.error('Error en hook beforeCreate:', error);
+                throw error;
+            }
         }
     }
 });

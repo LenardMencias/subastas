@@ -66,6 +66,18 @@ const vehiculo = db.define(
                 model: usuario,
                 key: 'id'
             }
+        },
+        precioCompraDirecta: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: true,
+            validate: {
+                min: 0
+            }
+        },
+        disponibleCompraDirecta: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     },
     {
