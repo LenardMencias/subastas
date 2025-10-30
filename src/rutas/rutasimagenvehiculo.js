@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const controladorImagenVehiculo = require('../controladores/controladorimagenvehiculo');
 const { body, query } = require('express-validator');
+const upload = require('../configuraciones/multer');
 const rutas = Router();
 
 /**
@@ -73,12 +74,13 @@ rutas.get('/listarvehiculo',
  *      500:
  *        description: Error al guardar la imagen
  */
-rutas.post('/guardar', [
-    body('url').notEmpty().withMessage('La URL es requerida')
-        .isURL().withMessage('Debe ser una URL válida'),
-    body('descripcion').optional(),
-    body('vehiculoId').isInt().withMessage('El ID del vehículo debe ser un número entero')
-], controladorImagenVehiculo.Guardar);
+rutas.post('/guardar', 
+    upload.single('imagen'),
+    [
+        body('descripcion').optional(),
+        body('vehiculoId').isInt().withMessage('El ID del vehículo debe ser un número entero')
+    ], 
+    controladorImagenVehiculo.Guardar);
 
 /**
  * @swagger
@@ -112,12 +114,13 @@ rutas.post('/guardar', [
  *      500:
  *        description: Error al actualizar la imagen
  */
-rutas.put('/actualizar', [
-    body('id').isInt().withMessage('El ID debe ser un número entero'),
-    body('url').notEmpty().withMessage('La URL es requerida')
-        .isURL().withMessage('Debe ser una URL válida'),
-    body('descripcion').optional()
-], controladorImagenVehiculo.Actualizar);
+rutas.put('/actualizar', 
+    upload.single('imagen'),
+    [
+        body('id').isInt().withMessage('El ID debe ser un número entero'),
+        body('descripcion').optional()
+    ], 
+    controladorImagenVehiculo.Actualizar);
 
 /**
  * @swagger

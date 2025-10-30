@@ -51,6 +51,7 @@ app.set('port', process.env.PORT || 3002);
 app.use(morgan('common'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use('/vehiculoimagen', express.static('public/vehiculoimagen'));
 app.use('/api/roles', rutasRol);
 app.use('/api/usuarios', rutasusuario);
 app.use('/api/vehiculos', rutasvehiculo);

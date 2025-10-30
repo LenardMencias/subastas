@@ -1,5 +1,7 @@
 const modeloImagenVehiculo = require('../modelos/imagenvehiculo');
 const { validationResult } = require('express-validator');
+const path = require('path');
+const fs = require('fs');
 
 exports.Listar = async (req, res) => {
     try {
@@ -36,6 +38,10 @@ exports.ListarPorVehiculo = async (req, res) => {
 exports.Guardar = async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
+        // Si hay un archivo subido, eliminarlo
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
         const data = errores.array().map(i => ({
             atributo: i.path,
             msj: i.msg
@@ -43,15 +49,31 @@ exports.Guardar = async (req, res) => {
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
 
-    const { url, descripcion, vehiculoId } = req.body;
+    if (!req.file) {
+        return res.status(400).json({ msj: 'No se ha proporcionado ninguna imagen' });
+    }
+
+    const { descripcion, vehiculoId } = req.body;
     try {
+        // Crear la URL relativa para la imagen
+        const urlImagen = `/vehiculoimagen/${req.file.filename}`;
+
         const nuevaImagen = await modeloImagenVehiculo.create({
-            url: url,
+            url: urlImagen,
             descripcion: descripcion,
             vehiculoId: vehiculoId
         });
-        res.status(201).json(nuevaImagen);
+
+        // Devolver la información completa
+        res.status(201).json({
+            ...nuevaImagen.toJSON(),
+            urlCompleta: `${req.protocol}://${req.get('host')}${urlImagen}`
+        });
     } catch (error) {
+        // Si hay error, eliminar el archivo subido
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
         console.error(error);
         res.status(500).json({ msj: 'Error al guardar la imagen' });
     }
@@ -60,6 +82,9 @@ exports.Guardar = async (req, res) => {
 exports.Actualizar = async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
         const data = errores.array().map(i => ({
             atributo: i.path,
             msj: i.msg
@@ -67,19 +92,42 @@ exports.Actualizar = async (req, res) => {
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
 
-    const { id, url, descripcion } = req.body;
+    const { id, descripcion } = req.body;
     try {
         const imagenEncontrada = await modeloImagenVehiculo.findByPk(id);
         if (!imagenEncontrada) {
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
             return res.status(404).json({ msj: 'Imagen no encontrada' });
         }
 
-        const imagenActualizada = await imagenEncontrada.update({
-            url: url,
-            descripcion: descripcion
+        let actualizacion = { descripcion };
+
+        // Si hay una nueva imagen
+        if (req.file) {
+            // Eliminar la imagen anterior
+            const rutaAnterior = path.join(__dirname, '../../public', imagenEncontrada.url);
+            if (fs.existsSync(rutaAnterior)) {
+                fs.unlinkSync(rutaAnterior);
+            }
+
+            // Actualizar con la nueva ruta
+            const urlImagen = `/vehiculoimagen/${req.file.filename}`;
+            actualizacion.url = urlImagen;
+        }
+
+        const imagenActualizada = await imagenEncontrada.update(actualizacion);
+
+        // Devolver la información completa
+        res.json({
+            ...imagenActualizada.toJSON(),
+            urlCompleta: `${req.protocol}://${req.get('host')}${imagenActualizada.url}`
         });
-        res.json(imagenActualizada);
     } catch (error) {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
         console.error(error);
         res.status(500).json({ msj: 'Error al actualizar la imagen' });
     }
@@ -100,6 +148,12 @@ exports.Eliminar = async (req, res) => {
         const imagenEncontrada = await modeloImagenVehiculo.findByPk(id);
         if (!imagenEncontrada) {
             return res.status(404).json({ msj: 'Imagen no encontrada' });
+        }
+
+        // Eliminar el archivo físico
+        const rutaImagen = path.join(__dirname, '../../public', imagenEncontrada.url);
+        if (fs.existsSync(rutaImagen)) {
+            fs.unlinkSync(rutaImagen);
         }
 
         await imagenEncontrada.destroy();
