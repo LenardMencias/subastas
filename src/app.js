@@ -22,26 +22,26 @@ db.authenticate().then(async () => {
 	console.log('Conectado a la base de datos');
     ModeloRol.hasMany(ModeloUsuario, { foreignKey: 'rolId' });
     ModeloUsuario.belongsTo(ModeloRol, { foreignKey: 'rolId' });
-	await ModeloRol.sync()
-		.then(() => console.log('Modelo rol creado correctamente'))
+	await ModeloRol.sync({ alter: true })
+		.then(() => console.log('Modelo rol creado correctamente (alter)'))
 		.catch((er) => console.error(er));
-    await ModeloUsuario.sync()
-		.then(() => console.log('Modelo usuario creado correctamente'))
+	await ModeloUsuario.sync({ alter: true })
+		.then(() => console.log('Modelo usuario creado correctamente (alter)'))
 		.catch((er) => console.error(er));
-	await ModeloVehiculo.sync()
-		.then(() => console.log('Modelo vehiculo creado correctamente'))
+	await ModeloVehiculo.sync({ alter: true })
+		.then(() => console.log('Modelo vehiculo creado correctamente (alter)'))
 		.catch((er) => console.error(er));
-	await ModeloImagenVehiculo.sync()
-		.then(() => console.log('Modelo imagen vehiculo creado correctamente'))
+	await ModeloImagenVehiculo.sync({ alter: true })
+		.then(() => console.log('Modelo imagen vehiculo creado correctamente (alter)'))
 		.catch((er) => console.error(er));
-	await ModeloTiempo.sync()
-		.then(() => console.log('Modelo tiempo creado correctamente'))
+	await ModeloTiempo.sync({ alter: true })
+		.then(() => console.log('Modelo tiempo creado correctamente (alter)'))
 		.catch((er) => console.error(er));
-	await ModeloApuesta.sync()
-		.then(() => console.log('Modelo apuesta creado correctamente'))
+	await ModeloApuesta.sync({ alter: true })
+		.then(() => console.log('Modelo apuesta creado correctamente (alter)'))
 		.catch((er) => console.error(er));
-	await ModeloCompraDirecta.sync()
-		.then(() => console.log('Modelo compra directa creado correctamente'))
+	await ModeloCompraDirecta.sync({ alter: true })
+		.then(() => console.log('Modelo compra directa creado correctamente (alter)'))
 		.catch((er) => console.error(er));
 }).catch((er) => {
 	console.error('Error conectando a la base de datos:', er);
