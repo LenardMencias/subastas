@@ -15,6 +15,7 @@ const ModeloImagenVehiculo = require('./modelos/imagenvehiculo');
 const ModeloApuesta = require('./modelos/apuesta');
 const ModeloTiempo = require('./modelos/tiempo');
 const ModeloCompraDirecta = require('./modelos/compradirecta');
+const ModeloNotificacion = require('./modelos/notificacion');
 const rutasCompraDirecta = require('./rutas/rutascompradirecta');
 const app = express();
 

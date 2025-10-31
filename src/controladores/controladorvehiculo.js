@@ -1,5 +1,7 @@
+const { where } = require('sequelize');
 const modeloVehiculo = require('../modelos/vehiculo');
 const { validationResult } = require('express-validator');
+const sendEmail = require('../modelos/notificacion');
 
 exports.Listar = async (req, res) => {
     try {
@@ -45,7 +47,7 @@ exports.Guardar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId } = req.body;
+    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId, precioCompraDirecta } = req.body;
     try {
         const nuevoVehiculo = await modeloVehiculo.create({
             marca: marca,
@@ -60,9 +62,11 @@ exports.Guardar = async (req, res) => {
             llaves: llaves,
             kilometraje: kilometraje,
             tituloId: tituloId,
-            usuarioId: usuarioId
+            usuarioId: usuarioId,
+            precioCompraDirecta: precioCompraDirecta
         });
         res.status(201).json(nuevoVehiculo);
+        sendEmail('lenardrjc@gmail.com','Nuevo Vehículo Agregado',`Se ha agregado un nuevo vehículo: ${marca} ${modelo}, Año: ${anio}, VIN: ${vin}`);
     }
     catch (er) {
         console.error(er);
@@ -79,32 +83,36 @@ exports.Actualizar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { id, marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId } = req.body;
+    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId, precioCompraDirecta } = req.body;
+    const { id } = req.query;
     try {
-        const vehiculoEncontrado = await modeloVehiculo.findByPk(id, {
-            include: ['ImagenVehiculos']
-        });
+        const vehiculoEncontrado = await modeloVehiculo.findByPk(id, {include: ['ImagenVehiculos']});
         if (!vehiculoEncontrado) {
-            return res.status(404).json({ msj: 'Vehículo no encontrado' });
+            return res.status(404).json({ msj: 'Vehículo no encontrado' }); 
         }
-        const vehiculoActualizado = await vehiculoEncontrado.update({
-            marca: marca,
-            modelo: modelo,
-            anio: anio,
-            vin: vin,
-            reporte: reporte,
-            motor: motor,
-            transmision: transmision,
-            traccion: traccion,
-            combustible: combustible,
-            llaves: llaves,
-            kilometraje: kilometraje,
-            tituloId: tituloId,
-            usuarioId: usuarioId
+        else{
+           const vehiculoActualizado = await vehiculoEncontrado.update({
+                marca: marca,
+                modelo: modelo,
+                anio: anio,
+                vin: vin,
+                reporte: reporte,
+                motor: motor,
+                transmision: transmision,
+                traccion: traccion,
+                combustible: combustible,
+                llaves: llaves,
+                kilometraje: kilometraje,
+                tituloId: tituloId,
+                usuarioId: usuarioId,
+                precioCompraDirecta: precioCompraDirecta,
+                disponibleCompraDirecta: usuarioId ? true : false
+            },{ where: { id: id } }).then((data) => {
+                console.log(data);
+                res.json({ msj: "Registros Actualizados", data: data });
         });
-        res.json(vehiculoActualizado);
-    }
-    catch (er) {
+        }
+} catch (er) {
         console.error(er);
         res.status(500).json({ msj: 'Error al actualizar el vehículo' });
     }

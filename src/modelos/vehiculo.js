@@ -1,13 +1,6 @@
 const db = require('../configuraciones/db');
 const { DataTypes } = require('sequelize');
 const usuario = require('./usuario');
-<<<<<<< HEAD
-const { monthsShort } = require('moment');
-const imagen = require('./imagen');
-const titulo = require('./titulo');
-const { all } = require('../rutas/rutasrol');
-=======
->>>>>>> anibal
 
 const vehiculo = db.define(
     'Vehiculo',
