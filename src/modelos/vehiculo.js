@@ -1,10 +1,13 @@
 const db = require('../configuraciones/db');
 const { DataTypes } = require('sequelize');
 const usuario = require('./usuario');
+<<<<<<< HEAD
 const { monthsShort } = require('moment');
 const imagen = require('./imagen');
 const titulo = require('./titulo');
 const { all } = require('../rutas/rutasrol');
+=======
+>>>>>>> anibal
 
 const vehiculo = db.define(
     'Vehiculo',
@@ -59,26 +62,37 @@ const vehiculo = db.define(
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        imagenId: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: imagen,
-                key: 'id'
-            }
-        },
         tituloId: {
             type: DataTypes.INTEGER,
-            references: {
-                model: titulo,
-                key: 'id'
-            }
+            allowNull: true
         },
         usuarioId: {
             type: DataTypes.INTEGER,
+            allowNull: false,
             references: {
                 model: usuario,
                 key: 'id'
             }
+        },
+        precioCompraDirecta: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: true,
+            validate: {
+                min: 0
+            }
+        },
+        disponibleCompraDirecta: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
+    },
+    {
+        tableName: 'vehiculos',
+        timestamps: true
     }
 );
+
+vehiculo.belongsTo(usuario, { foreignKey: 'usuarioId' });
+
+module.exports = vehiculo;

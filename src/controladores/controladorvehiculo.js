@@ -2,8 +2,15 @@ const modeloVehiculo = require('../modelos/vehiculo');
 const { validationResult } = require('express-validator');
 
 exports.Listar = async (req, res) => {
-    const lista = await modeloVehiculo.findAll();
-    res.json(lista);
+    try {
+        const lista = await modeloVehiculo.findAll({
+            include: ['ImagenVehiculos']
+        });
+        res.json(lista);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msj: 'Error al listar los vehículos' });
+    }
 };
 
 exports.Buscar = async (req, res) => {
@@ -38,7 +45,7 @@ exports.Guardar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, imagenId, tituloId } = req.body;
+    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId } = req.body;
     try {
         const nuevoVehiculo = await modeloVehiculo.create({
             marca: marca,
@@ -52,8 +59,8 @@ exports.Guardar = async (req, res) => {
             combustible: combustible,
             llaves: llaves,
             kilometraje: kilometraje,
-            imagenId: imagenId,
-            tituloId: tituloId
+            tituloId: tituloId,
+            usuarioId: usuarioId
         });
         res.status(201).json(nuevoVehiculo);
     }
@@ -72,9 +79,11 @@ exports.Actualizar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { id, marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, imagenId, tituloId } = req.body;
+    const { id, marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId } = req.body;
     try {
-        const vehiculoEncontrado = await modeloVehiculo.findByPk(id);
+        const vehiculoEncontrado = await modeloVehiculo.findByPk(id, {
+            include: ['ImagenVehiculos']
+        });
         if (!vehiculoEncontrado) {
             return res.status(404).json({ msj: 'Vehículo no encontrado' });
         }
@@ -90,8 +99,8 @@ exports.Actualizar = async (req, res) => {
             combustible: combustible,
             llaves: llaves,
             kilometraje: kilometraje,
-            imagenId: imagenId,
-            tituloId: tituloId
+            tituloId: tituloId,
+            usuarioId: usuarioId
         });
         res.json(vehiculoActualizado);
     }
@@ -110,7 +119,7 @@ exports.Eliminar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { id } = req.body;
+    const { id } = req.query;
     try {
         const vehiculoEncontrado = await modeloVehiculo.findByPk(id);
         if (!vehiculoEncontrado) {
