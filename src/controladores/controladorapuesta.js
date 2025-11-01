@@ -2,6 +2,11 @@
 const modeloApuesta = require('../modelos/apuesta');
 const modeloTiempo = require('../modelos/tiempo');
 const { validationResult } = require('express-validator');
+const sendEmail = require('../modelos/notificacion');
+const { Sequelize } = require('sequelize');
+const modeloUsuarios = require('../modelos/usuario');
+const modeloVehiculos = require('../modelos/vehiculo');
+const vehiculo = require('../modelos/vehiculo');
 
 exports.Listar = async (req, res) => {
     try {
@@ -60,7 +65,6 @@ exports.ListarPorUsuario = async (req, res) => {
         res.status(500).json({ msj: 'Error al listar las apuestas del usuario' });
     }
 };
-
 exports.Guardar = async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -103,6 +107,11 @@ exports.Guardar = async (req, res) => {
         });
         
         res.status(201).json(apuestaConRelaciones);
+
+        const mensaje = `Se ha creado una nueva subasta de $${monto} para el vehículo: ${apuestaConRelaciones.Vehiculo.marca} ${apuestaConRelaciones.Vehiculo.modelo}, la subasta sera realizada por el usuario: ${apuestaConRelaciones.Usuario.nombre}. \nLa subasta dara inicio el ${apuestaConRelaciones.fechaInicio} y finalizara el ${apuestaConRelaciones.fechaFin}.`;
+
+        sendEmail('lenardrjc@gmail.com', 'Subasta', mensaje);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ msj: 'Error al guardar la apuesta' });

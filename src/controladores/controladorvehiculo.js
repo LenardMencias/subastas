@@ -66,8 +66,7 @@ exports.Guardar = async (req, res) => {
             precioCompraDirecta: precioCompraDirecta
         });
         res.status(201).json(nuevoVehiculo);
-        sendEmail('lenardrjc@gmail.com','Nuevo Vehículo Agregado',`Se ha agregado un nuevo vehículo: ${marca} ${modelo}, Año: ${anio}, VIN: ${vin}`);
-    }
+        }
     catch (er) {
         console.error(er);
         res.status(500).json({ msj: 'Error al guardar el vehículo' });
