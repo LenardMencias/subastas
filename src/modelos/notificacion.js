@@ -1,6 +1,6 @@
 // Modelo de Notificación
-const { DataTypes } = require('sequelize');
 const db = require('../configuraciones/db');
+const { DataTypes } = require('sequelize');
 const modeloNotificacion = db.define(
     'Notificacion',
     {
