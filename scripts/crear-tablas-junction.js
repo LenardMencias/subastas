@@ -5,7 +5,6 @@ async function crearTablasJunction() {
         await db.authenticate();
         console.log('Conectado a la base de datos');
 
-        // Crear tabla rol_permiso
         await db.query(`
             CREATE TABLE IF NOT EXISTS rol_permiso (
                 rolId INT NOT NULL,
@@ -17,9 +16,9 @@ async function crearTablasJunction() {
                 FOREIGN KEY (permisoId) REFERENCES permiso(id) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB;
         `);
-        console.log('✓ Tabla rol_permiso creada');
+        console.log('Tabla rol_permiso creada');
 
-        console.log('\nTablas junction creadas exitosamente');
+        console.log('Tablas junction creadas exitosamente');
         process.exit(0);
     } catch (error) {
         console.error('Error:', error);

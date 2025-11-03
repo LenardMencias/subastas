@@ -74,19 +74,6 @@ db.authenticate().then(async () => {
 	await ModeloPermiso.sync({ alter: true }).then(() => console.log('Modelo permiso sincronizado')).catch((er) => console.error('Error modelo permiso:', er.message));
     await ModeloTiempo.sync({ alter: true }).then(() => console.log('Modelo tiempo sincronizado')).catch((er) => console.error('Error modelo tiempo:', er.message));
     await ModeloRol.sync({ alter: true }).then(() => console.log('Modelo rol sincronizado')).catch((er) => console.error('Error modelo rol:', er.message));
-    
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS rol_permiso (
-            rolId INT NOT NULL,
-            permisoId INT NOT NULL,
-            createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (rolId, permisoId),
-            FOREIGN KEY (rolId) REFERENCES rol(id) ON DELETE CASCADE ON UPDATE CASCADE,
-            FOREIGN KEY (permisoId) REFERENCES permiso(id) ON DELETE CASCADE ON UPDATE CASCADE
-        ) ENGINE=InnoDB;
-    `).then(() => console.log('Tabla rol_permiso sincronizada')).catch((er) => console.error('Error tabla rol_permiso:', er.message));
-    
     await ModeloUsuario.sync({ alter: true }).then(() => console.log('Modelo usuario sincronizado')).catch((er) => console.error('Error modelo usuario:', er.message));
     await ModeloEmpleado.sync({ alter: true }).then(() => console.log('Modelo empleado sincronizado')).catch((er) => console.error('Error modelo empleado:', er.message));
     await ModeloCompradorVendedor.sync({ alter: true }).then(() => console.log('Modelo comprador/vendedor sincronizado')).catch((er) => console.error('Error modelo comprador/vendedor:', er.message));
@@ -96,7 +83,9 @@ db.authenticate().then(async () => {
     await ModeloCompraDirecta.sync({ alter: true }).then(() => console.log('Modelo compra directa sincronizado')).catch((er) => console.error('Error modelo compra directa:', er.message));
     await ModeloVentas.sync({ alter: true }).then(() => console.log('Modelo ventas sincronizado')).catch((er) => console.error('Error modelo ventas:', er.message));
     await ModeloVentaParticipante.sync({ alter: true }).then(() => console.log('Modelo venta participante sincronizado')).catch((er) => console.error('Error modelo venta participante:', er.message));
-
+	/*await ModeloNotificacion.sync({ alter: true })
+        .then(() => console.log('Modelo notificacion sincronizado'))
+        .catch((er) => console.error('Error modelo notificacion:', er.message));*/
     console.log('Todos los modelos sincronizados\n');
 }).catch((er) => {
     console.error('Error conectando a la base de datos:', er);
