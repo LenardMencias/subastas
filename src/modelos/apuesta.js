@@ -1,9 +1,9 @@
 // Modelo de Apuesta
 const { DataTypes } = require('sequelize');
 const db = require('../configuraciones/db');
-const Usuario = require('./usuario');
+const empleado = require('./empleado');
 const Vehiculo = require('./vehiculo');
-const Tiempo = require('./tiempo');
+const Usuario = require('./usuario');
 
 const Apuesta = db.define('Apuesta', {
     id: {
@@ -38,11 +38,11 @@ const Apuesta = db.define('Apuesta', {
         allowNull: false,
         defaultValue: false
     },
-    usuarioId: {
+    empleadoId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Usuario,
+            model: empleado,
             key: 'id'
         }
     },
@@ -54,14 +54,7 @@ const Apuesta = db.define('Apuesta', {
             key: 'id'
         }
     },
-    tiempoId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: Tiempo,
-            key: 'id'
-        }
-    }
+
 }, {
     tableName: 'apuestas',
     timestamps: true,
@@ -93,8 +86,5 @@ Usuario.hasMany(Apuesta, { foreignKey: 'usuarioId' });
 
 Apuesta.belongsTo(Vehiculo, { foreignKey: 'vehiculoId' });
 Vehiculo.hasMany(Apuesta, { foreignKey: 'vehiculoId' });
-
-Apuesta.belongsTo(Tiempo, { foreignKey: 'tiempoId' });
-Tiempo.hasMany(Apuesta, { foreignKey: 'tiempoId' });
 
 module.exports = Apuesta;

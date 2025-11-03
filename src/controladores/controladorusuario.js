@@ -1,8 +1,15 @@
 const usuarioModelo = require('../modelos/usuario');
+const empleadoModelo = require('../modelos/empleado');
+const compradorVendedorModelo = require('../modelos/CompradorVendedor');
 const { validationResult } = require('express-validator');
 
 exports.Listar = async (req, res) => {
-    const lista = await usuarioModelo.findAll();
+    const lista = await usuarioModelo.findAll({
+        include: [
+            { model: empleadoModelo, as: 'Empleados' },
+            { model: compradorVendedorModelo, as: 'CompradorVendedors' }
+        ]
+    });
     res.json(lista);
 };
 exports.Buscar = async (req, res) => {
@@ -16,7 +23,12 @@ exports.Buscar = async (req, res) => {
     }
     const { id } = req.query;
     try {
-        const usuarioEncontrado = await usuarioModelo.findByPk(id);
+        const usuarioEncontrado = await usuarioModelo.findByPk(id, {
+            include: [
+                { model: empleadoModelo, as: 'Empleados' },
+                { model: compradorVendedorModelo, as: 'CompradorVendedors' }
+            ]
+        });
         if (!usuarioEncontrado) {
             return res.status(404).json({ msj: 'Usuario no encontrado' });
         }
@@ -37,19 +49,77 @@ exports.Guardar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { nombre, email, contrasena, estado, rolId } = req.body;
+    
+    const { nombre, email, contrasena, estado, rolId, empleadoId, compradorVendedorId } = req.body;
+    
+    // Validar que se especifique empleadoId O compradorVendedorId, pero no ambos
+    if (!empleadoId && !compradorVendedorId) {
+        return res.status(400).json({ 
+            msj: 'Debe especificar empleadoId o compradorVendedorId para asociar el usuario a datos personales existentes' 
+        });
+    }
+    
+    if (empleadoId && compradorVendedorId) {
+        return res.status(400).json({ 
+            msj: 'No puede especificar empleadoId y compradorVendedorId al mismo tiempo' 
+        });
+    }
+    
+    const transaction = await usuarioModelo.sequelize.transaction();
+    
     try {
+        let entidadAsociada;
+        
+        // Verificar que el empleado o comprador/vendedor existe y no tiene usuario asignado
+        if (empleadoId) {
+            entidadAsociada = await empleadoModelo.findByPk(empleadoId);
+            if (!entidadAsociada) {
+                return res.status(404).json({ msj: 'Empleado no encontrado' });
+            }
+            if (entidadAsociada.usuarioId) {
+                return res.status(400).json({ msj: 'Este empleado ya tiene un usuario asociado' });
+            }
+        } else if (compradorVendedorId) {
+            entidadAsociada = await compradorVendedorModelo.findByPk(compradorVendedorId);
+            if (!entidadAsociada) {
+                return res.status(404).json({ msj: 'Comprador/Vendedor no encontrado' });
+            }
+            if (entidadAsociada.usuarioId) {
+                return res.status(400).json({ msj: 'Este Comprador/Vendedor ya tiene un usuario asociado' });
+            }
+        }
+        
+        // Crear el usuario
         const nuevoUsuario = await usuarioModelo.create({
             nombre: nombre,
             email: email,
             contrasena: contrasena,
-            estado: estado,
+            estado: estado !== undefined ? estado : true,
             rolId: rolId
+        }, { transaction });
+        
+        // Actualizar la entidad con el usuarioId
+        entidadAsociada.usuarioId = nuevoUsuario.id;
+        await entidadAsociada.save({ transaction });
+        
+        await transaction.commit();
+        
+        // Retornar el usuario completo con sus relaciones
+        const usuarioCompleto = await usuarioModelo.findByPk(nuevoUsuario.id, {
+            include: [
+                { model: empleadoModelo, as: 'Empleados' },
+                { model: compradorVendedorModelo, as: 'CompradorVendedors' }
+            ]
         });
-        res.status(201).json(nuevoUsuario);
+        
+        res.status(201).json({
+            msj: 'Usuario creado y asociado exitosamente',
+            usuario: usuarioCompleto
+        });
     } catch (error) {
+        await transaction.rollback();
         console.error(error);
-        res.status(500).json({ msj: 'Error al guardar el usuario' });
+        res.status(500).json({ msj: 'Error al guardar el usuario', error: error.message });
     }
 };
 

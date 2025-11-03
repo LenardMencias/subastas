@@ -5,37 +5,22 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-        title: 'API seminario',
+        title: 'API Subastas de Vehículos',
         version: '1.0.0',
-        description: 'API para el seminario de desarrollo web',
+        description: 'API para gestión de subastas y ventas de vehículos',
         contact: {
-            email: 'seminario@example.com',
-            name: 'Equipo de Seminario',
-            url: 'https://seminario.example.com'
+            email: 'soporte@subastas.com',
+            name: 'Soporte API'
         }
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 3001}/api`,
+        url: 'http://localhost:3001/api',
         description: 'Servidor local',
       },
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      },    
-    },
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
+    ]
   },
-  apis: [path.join(__dirname, '../rutas/*.js')], // Ruta a los archivos de rutas
+  apis: [path.join(__dirname, '../rutas/*.js')]
 };
 
 const swaggerSpec = swaggerJsDoc(options);

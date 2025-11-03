@@ -155,5 +155,6 @@ rutas.put('/actualizar',controladorvehiculo.Actualizar);
  *      500:
  *        description: Error al eliminar el vehículo
  */
+rutas.delete('/eliminar',controladorvehiculo.Eliminar);
 
 module.exports = rutas;
