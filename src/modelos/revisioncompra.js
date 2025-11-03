@@ -32,3 +32,5 @@ const modeloRevisionCompra = db.define(
     }
 );
 module.exports = modeloRevisionCompra;
+
+/*Verificacion de que el usuario */

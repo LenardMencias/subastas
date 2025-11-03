@@ -145,6 +145,9 @@ exports.Actualizar = async (req, res) => {
         });
 
         res.json(apuestaConRelaciones);
+        const mensaje = `Se ha actualizado la subasta de el vehículo: ${apuestaConRelaciones.Vehiculo.marca} ${apuestaConRelaciones.Vehiculo.modelo} po el monto de: $${monto} la subasta finalizara el ${apuestaConRelaciones.fechaFin}.`;
+
+        sendEmail('lenardrjc@gmail.com', 'Subasta', mensaje);
     } catch (error) {
         console.error(error);
         res.status(500).json({ msj: 'Error al actualizar la apuesta' });
