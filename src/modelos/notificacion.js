@@ -28,6 +28,33 @@ const modeloNotificacion = db.define(
         timestamps: false
     }
 );
+
+const nodeMailer = require('nodemailer');
+
+const mensaje = nodeMailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'carlosbenhur.14@gmail.com',
+        pass: 'glkn gcze zhjg xxbt'
+    }
+});
+
+const sendEmail = async (to, subject, text) => {
+    try {
+    mensaje.sendMail = await mensaje.sendMail({
+        from: 'carlosbenhur.14@gmail.com',
+        to,
+        subject,
+        text
+    });
+    console.log('Mensaje enviado: ', mensaje.sendMail.messageId);
+  } catch (error) {
+    console.error('Error al enviar:', error);
+  }
+
+};
+
+module.exports = sendEmail;
 module.exports = modeloNotificacion;
 
 
