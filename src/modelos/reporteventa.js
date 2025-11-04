@@ -26,7 +26,6 @@ const modeloReporteVenta = db.define(
             type: DataTypes.INTEGER,
             allowNull: false
         }
-        
     },
     {
         tableName: 'ReporteVentas',
