@@ -1,7 +1,7 @@
 // Modelo de Revisión de Compra
 const { DataTypes } = require('sequelize');
 const db = require('../configuraciones/db');
-const modeloRevisionCompra = db.define(
+const ModeloRevisionCompra = db.define(
     'RevisionCompra',
     {
         id: {
@@ -31,6 +31,6 @@ const modeloRevisionCompra = db.define(
         timestamps: false
     }
 );
-module.exports = modeloRevisionCompra;
+module.exports = ModeloRevisionCompra;
 
 /*Verificacion de que el usuario */

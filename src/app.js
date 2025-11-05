@@ -19,6 +19,7 @@ const ModeloVentas = require('./modelos/ventas');
 const ModeloVentaParticipante = require('./modelos/ventaparticipante');
 const ModeloReporteVenta = require('./modelos/reporteventa');
 const ModeloNotificacion = require('./modelos/notificacion');
+const ModeloRevisionCompra = require('./modelos/revisioncompra');
 
 const rutasRol = require('./rutas/rutasrol');
 const rutasPermisos = require('./rutas/rutaspermisos');
@@ -33,6 +34,7 @@ const rutasCompraDirecta = require('./rutas/rutascompradirecta');
 const rutasVentas = require('./rutas/rutasventas');
 const rutasReporteVenta = require('./rutas/rutasreporteventa');
 const rutasNotificacion = require('./rutas/rutasnotificacion');
+const rutasRevisionCompra = require('./rutas/rutasrevisioncompra');
 
 const app = express();
 
@@ -75,7 +77,8 @@ db.authenticate().then(async () => {
 	ModeloVentaParticipante.belongsTo(ModeloCompradorVendedor, { foreignKey: 'compradorVendedorId' }); 
     ModeloReporteVenta.hasMany(ModeloVehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
     ModeloReporteVenta.hasMany(ModeloUsuario, { foreignKey: 'usuarioId', as: 'usuario' });
-
+    ModeloRevisionCompra.hasMany(ModeloVehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
+    ModeloRevisionCompra.hasMany(ModeloUsuario, { foreignKey: 'usuarioId', as: 'usuario' });
 
 
 	await ModeloPermiso.sync({ alter: true }).then(() => console.log('Modelo permiso sincronizado')).catch((er) => console.error('Error modelo permiso:', er.message));
@@ -92,7 +95,8 @@ db.authenticate().then(async () => {
     await ModeloVentaParticipante.sync({ alter: true }).then(() => console.log('Modelo venta participante sincronizado')).catch((er) => console.error('Error modelo venta participante:', er.message));
 	await ModeloReporteVenta.sync({ alter: true }).then(() => console.log('Modelo reporte de venta sincronizado')).catch((er) => console.error('Error modelo reporte de venta:', er.message));
     await ModeloNotificacion.sync({ alter: true }).then(() => console.log('Modelo notificacion sincronizado')).catch((er) => console.error('Error modelo notificacion:', er.message));
-
+    await ModeloRevisionCompra.sync({ alter: true }).then(() => console.log('Modelo revision compra sincronizado')).catch((er) => console.error('Error modelo revision compra:', er.message));
+    
     console.log('Todos los modelos sincronizados\n');
 }).catch((er) => {
     console.error('Error conectando a la base de datos:', er);
@@ -116,6 +120,8 @@ app.use('/api/apuestas', rutasApuesta);
 app.use('/api/comprasdirectas', rutasCompraDirecta);
 app.use('/api/ventas', rutasVentas);
 app.use('/api/reportesventa', require('./rutas/rutasreporteventa', rutasReporteVenta));
+app.use('/api/notificaciones', rutasNotificacion);
+app.use('/api/revisionescompra', rutasRevisionCompra);
 
 
 
