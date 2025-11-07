@@ -1,24 +1,6 @@
 const db = require('../configuraciones/db');
 const { DataTypes } = require('sequelize');
 
-/**
- * Modelo TituloVehiculo
- * Almacena la información de los documentos legales de un vehículo
- * 
- * Validaciones:
- * - numeroTitulo: STRING, requerido, único - Número del título de propiedad
- * - fechaEmision: DATE, requerido - Fecha de emisión del título
- * - fechaVencimiento: DATE, opcional - Fecha de vencimiento si aplica
- * - estado: ENUM, requerido - Estado del título: 'vigente', 'vencido', 'en_tramite', 'perdido'
- * - propietarioRegistrado: STRING, requerido - Nombre del propietario según el título
- * - documentoPropietario: STRING, requerido - Documento de identidad del propietario
- * - certificadoRegistro: STRING, opcional - URL o número del certificado de registro
- * - certificadoVerificacion: STRING, opcional - URL o número del certificado de verificación técnica
- * - polizaSeguro: STRING, opcional - Número de póliza de seguro
- * - placas: STRING, opcional - Número de placas del vehículo
- * - observaciones: TEXT, opcional - Observaciones adicionales sobre los documentos
- * - vehiculoId: INTEGER, requerido - Relación con el vehículo
- */
 const tituloVehiculo = db.define(
     'TituloVehiculo',
     {
