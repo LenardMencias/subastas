@@ -47,6 +47,14 @@ exports.Guardar = async (req, res) => {
     }
     const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId } = req.body;
     try {
+        // Verificar que no exista un vehículo con el mismo VIN
+        const vehiculoConMismoVin = await modeloVehiculo.findOne({
+            where: { vin: vin }
+        });
+        if (vehiculoConMismoVin) {
+            return res.status(400).json({ msj: 'Ya existe un vehículo registrado con ese VIN' });
+        }
+
         const nuevoVehiculo = await modeloVehiculo.create({
             marca: marca,
             modelo: modelo,
@@ -87,6 +95,17 @@ exports.Actualizar = async (req, res) => {
         if (!vehiculoEncontrado) {
             return res.status(404).json({ msj: 'Vehículo no encontrado' });
         }
+
+        // Verificar que no exista otro vehículo con el mismo VIN (si se está actualizando el VIN)
+        if (vin && vin !== vehiculoEncontrado.vin) {
+            const vehiculoConMismoVin = await modeloVehiculo.findOne({
+                where: { vin: vin }
+            });
+            if (vehiculoConMismoVin) {
+                return res.status(400).json({ msj: 'Ya existe otro vehículo registrado con ese VIN' });
+            }
+        }
+
         const vehiculoActualizado = await vehiculoEncontrado.update({
             marca: marca,
             modelo: modelo,

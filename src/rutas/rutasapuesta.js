@@ -39,7 +39,9 @@ rutas.get('/listar', controladorApuesta.Listar);
  *        description: Error al listar las apuestas
  */
 rutas.get('/listarvehiculo',
-    query('vehiculoId').isInt().withMessage('El ID del vehículo debe ser un número entero'),
+    query('vehiculoId')
+        .isInt().withMessage('El ID del vehículo debe ser un número entero')
+        .notEmpty().withMessage('El ID del vehículo es requerido'),
     controladorApuesta.ListarPorVehiculo
 );
 
@@ -65,7 +67,9 @@ rutas.get('/listarvehiculo',
  *        description: Error al listar las apuestas
  */
 rutas.get('/listarusuario',
-    query('usuarioId').isInt().withMessage('El ID del usuario debe ser un número entero'),
+    query('usuarioId')
+        .isInt().withMessage('El ID del usuario debe ser un número entero')
+        .notEmpty().withMessage('El ID del usuario es requerido'),
     controladorApuesta.ListarPorUsuario
 );
 
@@ -81,10 +85,15 @@ rutas.get('/listarusuario',
  *        application/json:
  *          schema:
  *            type: object
+ *            required:
+ *              - monto
+ *              - usuarioId
+ *              - vehiculoId
  *            properties:
  *              monto:
  *                type: number
- *                description: Monto de la apuesta
+ *                minimum: 0
+ *                description: Monto de la apuesta (debe ser mayor a 0)
  *              usuarioId:
  *                type: integer
  *                description: ID del usuario que realiza la apuesta
@@ -103,10 +112,18 @@ rutas.get('/listarusuario',
  *        description: Error al crear la apuesta
  */
 rutas.post('/guardar', [
-    body('monto').isFloat({ min: 0 }).withMessage('El monto debe ser un número positivo'),
-    body('usuarioId').isInt().withMessage('El ID del usuario debe ser un número entero'),
-    body('vehiculoId').isInt().withMessage('El ID del vehículo debe ser un número entero'),
-    body('tiempoId').optional().isInt().withMessage('El ID del tiempo debe ser un número entero')
+    body('monto')
+        .notEmpty().withMessage('El monto es requerido')
+        .isFloat({ min: 0.01 }).withMessage('El monto debe ser un número positivo mayor a 0'),
+    body('usuarioId')
+        .notEmpty().withMessage('El ID del usuario es requerido')
+        .isInt().withMessage('El ID del usuario debe ser un número entero'),
+    body('vehiculoId')
+        .notEmpty().withMessage('El ID del vehículo es requerido')
+        .isInt().withMessage('El ID del vehículo debe ser un número entero'),
+    body('tiempoId')
+        .optional()
+        .isInt().withMessage('El ID del tiempo debe ser un número entero')
 ], controladorApuesta.Guardar);
 
 /**
@@ -121,6 +138,10 @@ rutas.post('/guardar', [
  *        application/json:
  *          schema:
  *            type: object
+ *            required:
+ *              - id
+ *              - estado
+ *              - ganador
  *            properties:
  *              id:
  *                type: integer
@@ -143,9 +164,15 @@ rutas.post('/guardar', [
  *        description: Error al actualizar la apuesta
  */
 rutas.put('/actualizar', [
-    body('id').isInt().withMessage('El ID debe ser un número entero'),
-    body('estado').isIn(['activa', 'finalizada', 'cancelada']).withMessage('Estado inválido'),
-    body('ganador').isBoolean().withMessage('El ganador debe ser verdadero o falso')
+    body('id')
+        .notEmpty().withMessage('El ID es requerido')
+        .isInt().withMessage('El ID debe ser un número entero'),
+    body('estado')
+        .notEmpty().withMessage('El estado es requerido')
+        .isIn(['activa', 'finalizada', 'cancelada']).withMessage('Estado inválido. Debe ser: activa, finalizada o cancelada'),
+    body('ganador')
+        .notEmpty().withMessage('El campo ganador es requerido')
+        .isBoolean().withMessage('El ganador debe ser verdadero o falso')
 ], controladorApuesta.Actualizar);
 
 /**
@@ -172,7 +199,9 @@ rutas.put('/actualizar', [
  *        description: Error al finalizar la apuesta
  */
 rutas.put('/finalizar',
-    query('id').isInt().withMessage('El ID debe ser un número entero'),
+    query('id')
+        .notEmpty().withMessage('El ID es requerido')
+        .isInt().withMessage('El ID debe ser un número entero'),
     controladorApuesta.FinalizarApuesta
 );
 

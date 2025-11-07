@@ -16,12 +16,20 @@ const ModeloApuesta = require('./modelos/apuesta');
 const ModeloTiempo = require('./modelos/tiempo');
 const ModeloCompraDirecta = require('./modelos/compradirecta');
 const rutasCompraDirecta = require('./rutas/rutascompradirecta');
+const ModeloTituloVehiculo = require('./modelos/titulovehiculo');
+const rutasTituloVehiculo = require('./rutas/rutastititulovehiculo');
 const app = express();
 
 db.authenticate().then(async () => {
 	console.log('Conectado a la base de datos');
+    // Relaciones de Rol y Usuario
     ModeloRol.hasMany(ModeloUsuario, { foreignKey: 'rolId' });
     ModeloUsuario.belongsTo(ModeloRol, { foreignKey: 'rolId' });
+    
+    // Relaciones de Vehículo con TituloVehiculo
+    ModeloVehiculo.hasMany(ModeloTituloVehiculo, { foreignKey: 'vehiculoId', as: 'Titulos' });
+    ModeloTituloVehiculo.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId', as: 'Vehiculo' });
+    
 	await ModeloRol.sync({ alter: true })
 		.then(() => console.log('Modelo rol creado correctamente (alter)'))
 		.catch((er) => console.error(er));
@@ -43,6 +51,9 @@ db.authenticate().then(async () => {
 	await ModeloCompraDirecta.sync({ alter: true })
 		.then(() => console.log('Modelo compra directa creado correctamente (alter)'))
 		.catch((er) => console.error(er));
+	await ModeloTituloVehiculo.sync({ alter: true })
+		.then(() => console.log('Modelo titulo vehiculo creado correctamente (alter)'))
+		.catch((er) => console.error(er));
 }).catch((er) => {
 	console.error('Error conectando a la base de datos:', er);
 });
@@ -59,6 +70,7 @@ app.use('/api/imagenesvehiculo', rutasImagenVehiculo);
 app.use('/api/apuestas', rutasApuesta);
 app.use('/api/tiempos', rutasTiempo);
 app.use('/api/comprasdirectas', rutasCompraDirecta);
+app.use('/api/titulosvehiculos', rutasTituloVehiculo);
 app.listen(app.get('port'), () => {
 	console.log('Servidor iniciado en el puerto', app.get('port'));
 });
