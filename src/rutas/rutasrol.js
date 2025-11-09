@@ -6,7 +6,7 @@ const rutas = Router();
 
 /**
  * @swagger
- * /rol/listar:
+ * /roles/listar:
  *   get:
  *     summary: Listar roles
  *     tags: [Roles]
@@ -25,7 +25,7 @@ rutas.get('/listar', controladorrol.Listar);
 
 /**
  * @swagger
- * /rol/buscar:
+ * /roles/buscar:
  *   get:
  *     summary: Buscar un rol por ID
  *     tags: [Roles]
@@ -57,7 +57,7 @@ rutas.get('/buscar',
 
 /**
  * @swagger
- * /rol/guardar:
+ * /roles/guardar:
  *   post:
  *     summary: Guardar un nuevo rol
  *     tags: [Roles]
@@ -107,7 +107,7 @@ rutas.post('/guardar',
 
 /**
  * @swagger
- * /rol/actualizar:
+ * /roles/actualizar:
  *   put:
  *     summary: Actualizar un rol existente
  *     tags: [Roles]
@@ -165,7 +165,7 @@ rutas.put('/actualizar',
 
 /**
  * @swagger
- * /rol/eliminar:
+ * /roles/eliminar:
  *   delete:
  *     summary: Eliminar un rol
  *     tags: [Roles]

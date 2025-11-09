@@ -1,6 +1,7 @@
 const db = require('../configuraciones/db');
 const { DataTypes } = require('sequelize');
 const role = require('./rol');
+const CompradorVendedor = require('./CompradorVendedor');
 
 const usuario = db.define(
     'Usuario',
@@ -34,6 +35,8 @@ const usuario = db.define(
     }
 );
 
+CompradorVendedor.belongsTo(usuario, { foreignKey: 'usuarioId' });
+usuario.hasMany(CompradorVendedor, { foreignKey: 'usuarioId' });
 usuario.belongsTo(role, { foreignKey: 'rolId' });
 role.hasMany(usuario, { foreignKey: 'rolId' });
 
