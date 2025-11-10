@@ -5,7 +5,7 @@ const swaggerSpec = require('./configuraciones/swagger');
 require('dotenv').config();
 const db = require('./configuraciones/db');
 
-const ModeloRol = require('./modelos/rol');
+const { rol: ModeloRol, crearTablasJunction } = require('./modelos/rol');
 const ModeloPermiso = require('./modelos/permisos');
 const ModeloUsuario = require('./modelos/usuario');
 const ModeloEmpleado = require('./modelos/empleado');
@@ -20,6 +20,7 @@ const ModeloVentaParticipante = require('./modelos/ventaparticipante');
 const ModeloReporteVenta = require('./modelos/reporteventa');
 const ModeloNotificacion = require('./modelos/notificacion');
 const ModeloRevisionCompra = require('./modelos/revisioncompra');
+const ModeloTituloVehiculo = require('./modelos/titulovehiculo');
 
 const rutasRol = require('./rutas/rutasrol');
 const rutasPermisos = require('./rutas/rutaspermisos');
@@ -35,6 +36,8 @@ const rutasVentas = require('./rutas/rutasventas');
 const rutasReporteVenta = require('./rutas/rutasreporteventa');
 const rutasNotificacion = require('./rutas/rutasnotificacion');
 const rutasRevisionCompra = require('./rutas/rutasrevisioncompra');
+const rutasTituloVehiculo = require('./rutas/rutastititulovehiculo');
+const rutasAuth = require('./rutas/rutasauth');
 
 const app = express();
 
@@ -59,6 +62,8 @@ db.authenticate().then(async () => {
     ModeloApuesta.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
     ModeloUsuario.hasMany(ModeloApuesta, { foreignKey: 'usuarioId' });
     ModeloApuesta.belongsTo(ModeloUsuario, { foreignKey: 'usuarioId' });
+    ModeloTiempo.hasMany(ModeloApuesta, { foreignKey: 'tiempoId' });
+    ModeloApuesta.belongsTo(ModeloTiempo, { foreignKey: 'tiempoId' });
     ModeloUsuario.hasMany(ModeloCompraDirecta, { foreignKey: 'usuarioId' });
     ModeloCompraDirecta.belongsTo(ModeloUsuario, { foreignKey: 'usuarioId' });
     ModeloVehiculo.hasMany(ModeloCompraDirecta, { foreignKey: 'vehiculoId' });
@@ -79,35 +84,47 @@ db.authenticate().then(async () => {
     ModeloReporteVenta.hasMany(ModeloUsuario, { foreignKey: 'usuarioId', as: 'usuario' });
     ModeloRevisionCompra.hasMany(ModeloVehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
     ModeloRevisionCompra.hasMany(ModeloUsuario, { foreignKey: 'usuarioId', as: 'usuario' });
+    ModeloVehiculo.hasOne(ModeloTituloVehiculo, { foreignKey: 'vehiculoId', as: 'titulo' });
+    ModeloTituloVehiculo.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
 
+    await crearTablasJunction();
+	await ModeloPermiso.sync().then(() => console.log('Modelo permiso sincronizado')).catch((er) => console.error('Error modelo permiso:', er.message));
+    await ModeloTiempo.sync().then(() => console.log('Modelo tiempo sincronizado')).catch((er) => console.error('Error modelo tiempo:', er.message));
+    await ModeloRol.sync().then(() => console.log('Modelo rol sincronizado')).catch((er) => console.error('Error modelo rol:', er.message));
+    await ModeloUsuario.sync().then(() => console.log('Modelo usuario sincronizado')).catch((er) => console.error('Error modelo usuario:', er.message));
+    await ModeloEmpleado.sync().then(() => console.log('Modelo empleado sincronizado')).catch((er) => console.error('Error modelo empleado:', er.message));
+    await ModeloCompradorVendedor.sync().then(() => console.log('Modelo comprador/vendedor sincronizado')).catch((er) => console.error('Error modelo comprador/vendedor:', er.message));
+    await ModeloVehiculo.sync().then(() => console.log('Modelo vehiculo sincronizado')).catch((er) => console.error('Error modelo vehiculo:', er.message));
+    await ModeloImagenVehiculo.sync().then(() => console.log('Modelo imagen vehiculo sincronizado')).catch((er) => console.error('Error modelo imagen vehiculo:', er.message));
+    await ModeloApuesta.sync().then(() => console.log('Modelo apuesta sincronizado')).catch((er) => console.error('Error modelo apuesta:', er.message));
+    await ModeloCompraDirecta.sync().then(() => console.log('Modelo compra directa sincronizado')).catch((er) => console.error('Error modelo compra directa:', er.message));
+    await ModeloVentas.sync().then(() => console.log('Modelo ventas sincronizado')).catch((er) => console.error('Error modelo ventas:', er.message));
+    await ModeloVentaParticipante.sync().then(() => console.log('Modelo venta participante sincronizado')).catch((er) => console.error('Error modelo venta participante:', er.message));
+	await ModeloReporteVenta.sync().then(() => console.log('Modelo reporte de venta sincronizado')).catch((er) => console.error('Error modelo reporte de venta:', er.message));
+    await ModeloNotificacion.sync().then(() => console.log('Modelo notificacion sincronizado')).catch((er) => console.error('Error modelo notificacion:', er.message));
+    await ModeloRevisionCompra.sync().then(() => console.log('Modelo revision compra sincronizado')).catch((er) => console.error('Error modelo revision compra:', er.message));
+    await ModeloTituloVehiculo.sync().then(() => console.log('Modelo titulo vehiculo sincronizado')).catch((er) => console.error('Error modelo titulo vehiculo:', er.message));
 
-	await ModeloPermiso.sync({ alter: true }).then(() => console.log('Modelo permiso sincronizado')).catch((er) => console.error('Error modelo permiso:', er.message));
-    await ModeloTiempo.sync({ alter: true }).then(() => console.log('Modelo tiempo sincronizado')).catch((er) => console.error('Error modelo tiempo:', er.message));
-    await ModeloRol.sync({ alter: true }).then(() => console.log('Modelo rol sincronizado')).catch((er) => console.error('Error modelo rol:', er.message));
-    await ModeloUsuario.sync({ alter: true }).then(() => console.log('Modelo usuario sincronizado')).catch((er) => console.error('Error modelo usuario:', er.message));
-    await ModeloEmpleado.sync({ alter: true }).then(() => console.log('Modelo empleado sincronizado')).catch((er) => console.error('Error modelo empleado:', er.message));
-    await ModeloCompradorVendedor.sync({ alter: true }).then(() => console.log('Modelo comprador/vendedor sincronizado')).catch((er) => console.error('Error modelo comprador/vendedor:', er.message));
-    await ModeloVehiculo.sync({ alter: true }).then(() => console.log('Modelo vehiculo sincronizado')).catch((er) => console.error('Error modelo vehiculo:', er.message));
-    await ModeloImagenVehiculo.sync({ alter: true }).then(() => console.log('Modelo imagen vehiculo sincronizado')).catch((er) => console.error('Error modelo imagen vehiculo:', er.message));
-    await ModeloApuesta.sync({ alter: true }).then(() => console.log('Modelo apuesta sincronizado')).catch((er) => console.error('Error modelo apuesta:', er.message));
-    await ModeloCompraDirecta.sync({ alter: true }).then(() => console.log('Modelo compra directa sincronizado')).catch((er) => console.error('Error modelo compra directa:', er.message));
-    await ModeloVentas.sync({ alter: true }).then(() => console.log('Modelo ventas sincronizado')).catch((er) => console.error('Error modelo ventas:', er.message));
-    await ModeloVentaParticipante.sync({ alter: true }).then(() => console.log('Modelo venta participante sincronizado')).catch((er) => console.error('Error modelo venta participante:', er.message));
-	await ModeloReporteVenta.sync({ alter: true }).then(() => console.log('Modelo reporte de venta sincronizado')).catch((er) => console.error('Error modelo reporte de venta:', er.message));
-    await ModeloNotificacion.sync({ alter: true }).then(() => console.log('Modelo notificacion sincronizado')).catch((er) => console.error('Error modelo notificacion:', er.message));
-    await ModeloRevisionCompra.sync({ alter: true }).then(() => console.log('Modelo revision compra sincronizado')).catch((er) => console.error('Error modelo revision compra:', er.message));
-    
     console.log('Todos los modelos sincronizados\n');
+    
 }).catch((er) => {
     console.error('Error conectando a la base de datos:', er);
 });
 
-app.set('port', process.env.PORT || 3002);
+app.set('port', process.env.PORT || 3000);
+
+// Iniciar el servidor después de configurar todo
+app.listen(app.get('port'), () => {
+    console.log('Servidor iniciado en el puerto', app.get('port'));
+    console.log('API disponible en: http://localhost:' + app.get('port') + '/api');
+    console.log('Documentacion Swagger: http://localhost:' + app.get('port') + '/api-docs');
+});
 app.use(morgan('common'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use('/vehiculoimagen', express.static('public/vehiculoimagen'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/auth', rutasAuth);
 app.use('/api/roles', rutasRol);
 app.use('/api/permisos', rutasPermisos);
 app.use('/api/usuarios', rutasUsuario);
@@ -119,14 +136,7 @@ app.use('/api/tiempos', rutasTiempo);
 app.use('/api/apuestas', rutasApuesta);
 app.use('/api/comprasdirectas', rutasCompraDirecta);
 app.use('/api/ventas', rutasVentas);
-app.use('/api/reportesventa', require('./rutas/rutasreporteventa', rutasReporteVenta));
+app.use('/api/reportesventa', rutasReporteVenta);
 app.use('/api/notificaciones', rutasNotificacion);
 app.use('/api/revisionescompra', rutasRevisionCompra);
-
-
-
-app.listen(app.get('port'), () => {
-    console.log('Servidor iniciado en el puerto', app.get('port'));
-    console.log('API disponible en: http://localhost:' + app.get('port') + '/api');
-    console.log('Documentacion Swagger: http://localhost:' + app.get('port') + '/api-docs');
-});
+app.use('/api/titulovehiculo', rutasTituloVehiculo);

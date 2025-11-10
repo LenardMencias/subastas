@@ -205,4 +205,43 @@ rutas.put('/finalizar',
     controladorApuesta.FinalizarApuesta
 );
 
+/**
+ * @swagger
+ * /apuesta/tiempos:
+ *  get:
+ *    summary: Listar tiempos disponibles para las apuestas
+ *    tags: [Apuesta]
+ *    responses:
+ *      200:
+ *        description: Lista de tiempos disponibles
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                type: object
+ *                properties:
+ *                  id:
+ *                    type: integer
+ *                  duracion:
+ *                    type: integer
+ *                    description: Duración en minutos
+ *                  descripcion:
+ *                    type: string
+ *      500:
+ *        description: Error al listar los tiempos
+ */
+rutas.get('/tiempos', controladorApuesta.ListarTiempos);
+
+// Finalizar subasta y determinar ganador
+rutas.post('/finalizar', [
+    body('vehiculoId').isInt().withMessage('vehiculoId debe ser un número entero')
+], controladorApuesta.FinalizarSubasta);
+
+// Verificar subastas vencidas automáticamente
+rutas.post('/verificar-vencidas', controladorApuesta.VerificarSubastasVencidas);
+
+// Estadísticas de subasta
+rutas.get('/estadisticas/:vehiculoId', controladorApuesta.EstadisticasSubasta);
+
 module.exports = rutas;

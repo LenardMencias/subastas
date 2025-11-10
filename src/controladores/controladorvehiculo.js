@@ -47,7 +47,7 @@ exports.Guardar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId, precioCompraDirecta } = req.body;
+    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId, precioCompraDirecta, disponibleCompraDirecta } = req.body;
     try {
         const vehiculoConMismoVin = await modeloVehiculo.findOne({
             where: { vin: vin }
@@ -70,7 +70,8 @@ exports.Guardar = async (req, res) => {
             kilometraje: kilometraje,
             tituloId: tituloId,
             usuarioId: usuarioId,
-            precioCompraDirecta: precioCompraDirecta
+            precioCompraDirecta: precioCompraDirecta,
+            disponibleCompraDirecta: disponibleCompraDirecta || false
         });
         res.status(201).json(nuevoVehiculo);
         }
@@ -89,7 +90,7 @@ exports.Actualizar = async (req, res) => {
         }));
         return res.status(400).json({ msj: 'Hay errores', data: data });
     }
-    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId, precioCompraDirecta } = req.body;
+    const { marca, modelo, anio, vin, reporte, motor, transmision, traccion, combustible, llaves, kilometraje, tituloId, usuarioId, precioCompraDirecta, disponibleCompraDirecta } = req.body;
     const { id } = req.query;
     try {
         const vehiculoEncontrado = await modeloVehiculo.findByPk(id, {include: ['ImagenVehiculos']});
@@ -109,7 +110,9 @@ exports.Actualizar = async (req, res) => {
             llaves: llaves,
             kilometraje: kilometraje,
             tituloId: tituloId,
-            usuarioId: usuarioId
+            usuarioId: usuarioId,
+            precioCompraDirecta: precioCompraDirecta,
+            disponibleCompraDirecta: disponibleCompraDirecta
         });
         res.json(vehiculoActualizado);
     }
@@ -140,5 +143,39 @@ exports.Eliminar = async (req, res) => {
     catch (er) {
         console.error(er);
         res.status(500).json({ msj: 'Error al eliminar el vehículo' });
+    }
+};
+
+exports.ListarCompraDirectaDisponible = async (req, res) => {
+    try {
+        const vehiculos = await modeloVehiculo.findAll({
+            where: {
+                disponibleCompraDirecta: true,
+                precioCompraDirecta: {
+                    [require('sequelize').Op.gt]: 0
+                }
+            },
+            include: [{
+                association: 'Usuario',
+                attributes: ['id', 'nombre', 'email']
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+        
+        if (vehiculos.length === 0) {
+            return res.json({
+                msj: 'No hay vehículos disponibles para compra directa',
+                data: []
+            });
+        }
+        
+        res.json({
+            msj: 'Vehículos disponibles para compra directa',
+            total: vehiculos.length,
+            data: vehiculos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msj: 'Error al listar vehículos con compra directa disponible' });
     }
 };

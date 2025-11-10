@@ -1,5 +1,5 @@
 const ModeloPermiso = require('../modelos/permisos');
-const ModeloRol = require('../modelos/rol');
+const { rol: ModeloRol } = require('../modelos/rol');
 
 exports.Guardar = async (req, res) => {
     try {

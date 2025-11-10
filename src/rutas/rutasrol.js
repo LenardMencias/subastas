@@ -1,7 +1,7 @@
 const {Router} = require('express');
 const controladorrol = require('../controladores/controladorrol');
 const { body, query } = require('express-validator');
-const modelorol = require('../modelos/rol');
+const { rol: modelorol } = require('../modelos/rol');
 const rutas = Router();
 
 /**

@@ -62,17 +62,41 @@ exports.Guardar = async (req, res) => {
             return res.status(400).json({ msj: 'Este vehículo no tiene un precio de compra directa establecido' });
         }
 
+        // Verificar si ya existe una compra pendiente para este vehículo
+        const compraPendiente = await modeloCompraDirecta.findOne({
+            where: { 
+                vehiculoId: vehiculoId,
+                estado: 'pendiente'
+            }
+        });
+        
+        if (compraPendiente) {
+            return res.status(400).json({ 
+                msj: 'Este vehículo ya tiene una compra pendiente de otro usuario' 
+            });
+        }
+
         const nuevaCompra = await modeloCompraDirecta.create({
             precio: vehiculo.precioCompraDirecta,
             usuarioId: usuarioId,
-            vehiculoId: vehiculoId
+            vehiculoId: vehiculoId,
+            estado: 'pendiente'
+        });
+
+        // 🚗 RESERVAR EL VEHÍCULO (marcarlo como no disponible temporalmente)
+        await vehiculo.update({
+            disponibleCompraDirecta: false
         });
 
         const compraConRelaciones = await modeloCompraDirecta.findByPk(nuevaCompra.id, {
             include: ['Usuario', 'Vehiculo']
         });
         
-        res.status(201).json(compraConRelaciones);
+        res.status(201).json({
+            ...compraConRelaciones.toJSON(),
+            mensaje: 'Compra creada exitosamente. El vehículo está reservado.',
+            nota: 'Complete el pago para finalizar la transacción.'
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ msj: 'Error al procesar la compra directa' });
@@ -147,7 +171,18 @@ exports.Cancelar = async (req, res) => {
             estado: 'cancelada'
         });
 
-        res.json({ msj: 'Compra cancelada correctamente' });
+        // 🚗 LIBERAR EL VEHÍCULO (marcarlo como disponible nuevamente)
+        const vehiculo = await modeloVehiculo.findByPk(compra.vehiculoId);
+        if (vehiculo) {
+            await vehiculo.update({
+                disponibleCompraDirecta: true
+            });
+        }
+
+        res.json({ 
+            msj: 'Compra cancelada correctamente. El vehículo está disponible nuevamente.',
+            vehiculoLiberado: true
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ msj: 'Error al cancelar la compra' });

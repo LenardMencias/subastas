@@ -1,6 +1,6 @@
 const db = require('../configuraciones/db');
 const { DataTypes } = require('sequelize');
-const role = require('./rol');
+const { rol: role } = require('./rol');
 const CompradorVendedor = require('./CompradorVendedor');
 
 const usuario = db.define(

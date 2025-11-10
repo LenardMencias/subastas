@@ -335,4 +335,31 @@ rutas.delete('/eliminar',
     controladorvehiculo.Eliminar
 );
 
+/**
+ * @swagger
+ * /vehiculo/compra-directa-disponible:
+ *  get:
+ *    summary: Listar vehículos disponibles para compra directa
+ *    tags: [Vehiculo]
+ *    responses:
+ *      200:
+ *        description: Lista de vehículos con compra directa disponible
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                msj:
+ *                  type: string
+ *                total:
+ *                  type: integer
+ *                data:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *      500:
+ *        description: Error al listar vehículos
+ */
+rutas.get('/compra-directa-disponible', controladorvehiculo.ListarCompraDirectaDisponible);
+
 module.exports = rutas;
