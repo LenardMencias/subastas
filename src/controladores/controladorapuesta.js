@@ -78,18 +78,38 @@ exports.Guardar = async (req, res) => {
     const { monto, usuarioId, vehiculoId, tiempoId } = req.body;
     
     try {
-        // 🚗 VALIDAR QUE EL VEHÍCULO ESTÉ DISPONIBLE
+        // VALIDAR QUE EL VEHÍCULO ESTÉ DISPONIBLE
         const vehiculo = await modeloVehiculos.findByPk(vehiculoId);
         if (!vehiculo) {
             return res.status(404).json({ msj: 'Vehículo no encontrado' });
         }
         
-        // Verificar si el vehículo ya fue vendido o no está disponible
-        if (vehiculo.disponibleCompraDirecta === false) {
+        // Verificar si el vehículo ya fue vendido
+        // Solo bloquear si tiene compra directa habilitada PERO está marcado como no disponible
+        // O si ya existe una compra directa completada para este vehículo
+        const ModeloCompraDirecta = require('../modelos/compradirecta');
+        const compraExistente = await ModeloCompraDirecta.findOne({
+            where: { 
+                vehiculoId: vehiculoId,
+                estado: ['completada', 'pendiente']
+            }
+        });
+        
+        if (compraExistente) {
             return res.status(400).json({ 
-                msj: 'Este vehículo ya no está disponible para subastas o compra directa' 
+                msj: 'Este vehículo ya tiene una compra directa activa o completada' 
             });
         }
+        
+        // Caso 1: Vehículo con compra directa habilitada que se vendió
+        if (vehiculo.precioCompraDirecta && vehiculo.precioCompraDirecta > 0 && vehiculo.disponibleCompraDirecta === false) {
+            return res.status(400).json({ 
+                msj: 'Este vehículo ya fue vendido por compra directa' 
+            });
+        }
+        
+        // Caso 2: Los vehículos solo para subasta (sin precio de compra directa) siempre pueden subastarse
+        // Caso 3: Los vehículos con compra directa habilitada también pueden subastarse
         
         // Verificar si ya hay una subasta activa para este vehículo
         const apuestaExistente = await modeloApuesta.findOne({

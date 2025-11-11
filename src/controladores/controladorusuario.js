@@ -2,6 +2,7 @@ const usuarioModelo = require('../modelos/usuario');
 const empleadoModelo = require('../modelos/empleado');
 const compradorVendedorModelo = require('../modelos/CompradorVendedor');
 const { validationResult } = require('express-validator');
+const argon2 = require('argon2');
 
 exports.Listar = async (req, res) => {
     const lista = await usuarioModelo.findAll({
@@ -89,11 +90,14 @@ exports.Guardar = async (req, res) => {
             }
         }
         
+        // Hashear la contraseña con Argon2
+        const contrasenaHasheada = await argon2.hash(contrasena);
+        
         // Crear el usuario
         const nuevoUsuario = await usuarioModelo.create({
             nombre: nombre,
             email: email,
-            contrasena: contrasena,
+            contrasena: contrasenaHasheada,
             estado: estado !== undefined ? estado : true,
             rolId: rolId
         }, { transaction });
@@ -138,9 +142,16 @@ exports.Actualizar = async (req, res) => {
         if (!usuarioEncontrado) {
             return res.status(404).json({ msj: 'Usuario no encontrado' });
         }
+        
+        // Solo hashear la contraseña si se está actualizando
+        let contrasenaFinal = usuarioEncontrado.contrasena;
+        if (contrasena && contrasena !== usuarioEncontrado.contrasena) {
+            contrasenaFinal = await argon2.hash(contrasena);
+        }
+        
         usuarioEncontrado.nombre = nombre;
         usuarioEncontrado.email = email;
-        usuarioEncontrado.contrasena = contrasena;
+        usuarioEncontrado.contrasena = contrasenaFinal;
         usuarioEncontrado.estado = estado;
         usuarioEncontrado.rolId = rolId;
         await usuarioEncontrado.save();
