@@ -9,6 +9,7 @@ const rutas = Router();
  * /vehiculo/listar:
  *  get:
  *    summary: Listar vehículos
+ *    tags: [Vehiculo]
  *    responses:
  *      200:
  *        description: Lista de vehículos

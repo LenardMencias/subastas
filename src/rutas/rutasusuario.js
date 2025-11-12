@@ -46,7 +46,7 @@ rutas.get('/buscar', controladorusuario.Buscar);
  *     summary: Crear un usuario asociado a un Empleado o CompradorVendedor existente
  *     description: Primero debe crear un Empleado o CompradorVendedor, luego usar su ID para crear el usuario
  *     tags:
- *       - Usuarios
+ *       - Usuario
  *     requestBody:
  *       required: true
  *       content:

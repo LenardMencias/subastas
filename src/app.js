@@ -152,14 +152,14 @@ app.use('/api/usuarios', rutasUsuario);
 app.use('/api/empleados', rutasEmpleado);
 app.use('/api/compradoresvendedores', rutasCompradorVendedor);
 app.use('/api/vehiculo', rutasVehiculo); 
-app.use('/api/imagenesvehiculo', rutasImagenVehiculo);
+app.use('/api/imagenvehiculo', rutasImagenVehiculo);
 app.use('/api/tiempo', rutasTiempo);
 app.use('/api/apuesta', rutasApuesta);
 app.use('/api/compradirecta', rutasCompraDirecta);
 app.use('/api/venta', rutasVentas);
 app.use('/api/reportesventa', rutasReporteVenta);
 app.use('/api/notificaciones', rutasNotificacion);
-app.use('/api/revisionescompra', rutasRevisionCompra);
+app.use('/api/revisioncompra', rutasRevisionCompra);
 app.use('/api/titulovehiculo', rutasTituloVehiculo);
 
 app.listen(app.get('port'), () => {

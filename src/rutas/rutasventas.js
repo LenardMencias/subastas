@@ -47,7 +47,7 @@ rutas.get('/buscar',controladorventas.Buscar);
  *    tags: [Venta]
  *    responses:
  *      200:
- *        description: Estadísticas de ventas
+ *        description: Estadísticas obtenidas
  *      500:
  *        description: Error al obtener estadísticas
  */
@@ -58,6 +58,7 @@ rutas.get('/estadisticas',controladorventas.Estadisticas);
  * /venta/guardar:
  *  post:
  *    summary: Guardar una nueva venta
+ *    tags: [Venta]
  *    requestBody:
  *      required: true
  *      content:
@@ -89,6 +90,7 @@ rutas.post('/guardar',controladorventas.Guardar);
  * /venta/agregarparticipante:
  *  post:
  *    summary: Agregar participante a una venta
+ *    tags: [Venta]
  *    requestBody:
  *      required: true
  *      content:
@@ -119,6 +121,7 @@ rutas.post('/agregarparticipante',controladorventas.AgregarParticipante);
  * /venta/cerrar:
  *  put:
  *   summary: Cerrar una venta y seleccionar ganador
+ *   tags: [Venta]
  *   requestBody:
  *     required: true
  *     content:
@@ -147,6 +150,7 @@ rutas.put('/cerrar',controladorventas.CerrarVenta);
  * /venta/eliminar:
  *  delete:
  *    summary: Cancelar una venta
+ *    tags: [Venta]
  *    parameters:
  *      - in: query
  *        name: id
