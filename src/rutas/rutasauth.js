@@ -34,6 +34,41 @@ const validacionRegistro = [
         .withMessage('El tipo de usuario debe ser: cliente, empleado o administrador')
 ];
 
+// Validaciones para recuperación de contraseña
+const validacionRecuperacion = [
+    body('email')
+        .isEmail()
+        .withMessage('Debe ser un email válido')
+        .normalizeEmail()
+];
+
+const validacionCambioContrasena = [
+    body('email')
+        .isEmail()
+        .withMessage('Debe ser un email válido')
+        .normalizeEmail(),
+    body('token')
+        .isLength({ min: 6, max: 6 })
+        .withMessage('El token debe tener 6 dígitos')
+        .isNumeric()
+        .withMessage('El token debe ser numérico'),
+    body('nuevaContrasena')
+        .isLength({ min: 4 })
+        .withMessage('La nueva contraseña debe tener al menos 4 caracteres')
+];
+
+const validacionVerificarToken = [
+    body('email')
+        .isEmail()
+        .withMessage('Debe ser un email válido')
+        .normalizeEmail(),
+    body('token')
+        .isLength({ min: 6, max: 6 })
+        .withMessage('El token debe tener 6 dígitos')
+        .isNumeric()
+        .withMessage('El token debe ser numérico')
+];
+
 // Importar middleware de autenticación
 const { verificarToken } = require('../configuraciones/auth');
 
@@ -188,5 +223,126 @@ router.get('/perfil', verificarToken, (req, res) => {
         }
     });
 });
+
+/**
+ * @swagger
+ * /api/auth/solicitar-recuperacion:
+ *   post:
+ *     summary: Solicitar recuperación de contraseña
+ *     description: Envía un token de 6 dígitos al email del usuario para recuperar su contraseña
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email del usuario
+ *                 example: usuario@ejemplo.com
+ *     responses:
+ *       200:
+ *         description: Token enviado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   example: "Se ha enviado un código de recuperación a tu email"
+ *                 expiraEn:
+ *                   type: string
+ *                   example: "15 minutos"
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.post('/solicitar-recuperacion', validacionRecuperacion, controladorAuth.solicitarRecuperacion);
+
+/**
+ * @swagger
+ * /api/auth/cambiar-contrasena:
+ *   post:
+ *     summary: Cambiar contraseña con token
+ *     description: Cambia la contraseña del usuario usando el token de recuperación
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - token
+ *               - nuevaContrasena
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email del usuario
+ *                 example: usuario@ejemplo.com
+ *               token:
+ *                 type: string
+ *                 description: Token de 6 dígitos recibido por email
+ *                 example: "123456"
+ *               nuevaContrasena:
+ *                 type: string
+ *                 description: Nueva contraseña
+ *                 example: "nuevaContrasena123"
+ *     responses:
+ *       200:
+ *         description: Contraseña cambiada exitosamente
+ *       400:
+ *         description: Token inválido o expirado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.post('/cambiar-contrasena', validacionCambioContrasena, controladorAuth.cambiarContrasenaConToken);
+
+/**
+ * @swagger
+ * /api/auth/verificar-token:
+ *   post:
+ *     summary: Verificar token de recuperación
+ *     description: Verifica si un token de recuperación es válido (sin cambiar la contraseña)
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - token
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email del usuario
+ *                 example: usuario@ejemplo.com
+ *               token:
+ *                 type: string
+ *                 description: Token de 6 dígitos
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Token válido
+ *       400:
+ *         description: Token inválido o expirado
+ *       500:
+ *         description: Error del servidor
+ */
+router.post('/verificar-token', validacionVerificarToken, controladorAuth.verificarToken);
 
 module.exports = router;

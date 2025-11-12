@@ -86,6 +86,4 @@ const vehiculo = db.define(
     }
 );
 
-vehiculo.belongsTo(usuario, { foreignKey: 'usuarioId' });
-
 module.exports = vehiculo;

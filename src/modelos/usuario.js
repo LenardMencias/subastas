@@ -27,6 +27,22 @@ const usuario = db.define(
         estado: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
+        },
+        intentosFallidos: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        bloqueadoHasta: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        tokenRecuperacion: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        tokenExpiracion: {
+            type: DataTypes.DATE,
+            allowNull: true
         }
     },
     {
