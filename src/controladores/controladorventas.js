@@ -136,7 +136,7 @@ exports.Listar = async (req, res) => {
             include: [
                 { 
                     model: ModeloVehiculo, 
-                    attributes: ['id', 'marca', 'modelo', 'year', 'precio'] 
+                    attributes: ['id', 'marca', 'modelo', 'anio', 'precioCompraDirecta'] 
                 },
                 { 
                     model: ModeloTiempo, 

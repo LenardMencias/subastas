@@ -24,13 +24,14 @@ exports.Listar = async (req, res) => {
     try {
         const reportes = await ModeloReporteVenta.findAll({
             include: [
-                { model: ModeloVehiculo, as: 'vehiculo' },
-                { model: ModeloUsuario, as: 'usuario' }
+                { model: ModeloVehiculo },
+                { model: ModeloUsuario }
             ]
         });
         res.status(200).json(reportes);
     }   
     catch (error) {
+        console.error('Error en Listar reportes de venta:', error);
         res.status(500).json({ error: 'Error al obtener los reportes de venta' });
     }
 };

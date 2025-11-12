@@ -68,6 +68,8 @@ db.authenticate().then(async () => {
     ModeloCompraDirecta.belongsTo(ModeloUsuario, { foreignKey: 'usuarioId' });
     ModeloVehiculo.hasMany(ModeloCompraDirecta, { foreignKey: 'vehiculoId' });
     ModeloCompraDirecta.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
+    ModeloVehiculo.hasMany(ModeloVentas, { foreignKey: 'vehiculoId' });
+    ModeloVentas.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
 	ModeloTiempo.hasMany(ModeloVentas, { foreignKey: 'tiempoId' });
 	ModeloVentas.belongsTo(ModeloTiempo, { foreignKey: 'tiempoId', as: 'tiempo' });
 	ModeloCompraDirecta.hasMany(ModeloVentas, { foreignKey: 'compradirectaaId' });
@@ -80,30 +82,50 @@ db.authenticate().then(async () => {
 	ModeloVentaParticipante.belongsTo(ModeloVentas, { foreignKey: 'ventaId' });
 	ModeloCompradorVendedor.hasMany(ModeloVentaParticipante, { foreignKey: 'compradorVendedorId' });
 	ModeloVentaParticipante.belongsTo(ModeloCompradorVendedor, { foreignKey: 'compradorVendedorId' }); 
-    ModeloReporteVenta.hasMany(ModeloVehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
-    ModeloReporteVenta.hasMany(ModeloUsuario, { foreignKey: 'usuarioId', as: 'usuario' });
-    ModeloRevisionCompra.hasMany(ModeloVehiculo, { foreignKey: 'vehiculoId', as: 'vehiculo' });
-    ModeloRevisionCompra.hasMany(ModeloUsuario, { foreignKey: 'usuarioId', as: 'usuario' });
+    // Relaciones correctas - ReporteVenta pertenece a Vehiculo y Usuario
+    ModeloVehiculo.hasMany(ModeloReporteVenta, { foreignKey: 'vehiculoId' });
+    ModeloReporteVenta.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
+    ModeloUsuario.hasMany(ModeloReporteVenta, { foreignKey: 'usuarioId' });
+    ModeloReporteVenta.belongsTo(ModeloUsuario, { foreignKey: 'usuarioId' });
+    
+    // Relaciones correctas - RevisionCompra pertenece a Vehiculo y Usuario
+    ModeloVehiculo.hasMany(ModeloRevisionCompra, { foreignKey: 'vehiculoId' });
+    ModeloRevisionCompra.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
+    ModeloUsuario.hasMany(ModeloRevisionCompra, { foreignKey: 'usuarioId' });
+    ModeloRevisionCompra.belongsTo(ModeloUsuario, { foreignKey: 'usuarioId' });
     ModeloVehiculo.hasOne(ModeloTituloVehiculo, { foreignKey: 'vehiculoId', as: 'titulo' });
     ModeloTituloVehiculo.belongsTo(ModeloVehiculo, { foreignKey: 'vehiculoId' });
 
+    // Paso 1: Sincronizar tablas independientes primero
+	await ModeloPermiso.sync().then(() => console.log('Modelo permiso sincronizado')).catch((er) => console.error(' Error modelo permiso:', er.message));
+    await ModeloTiempo.sync().then(() => console.log('Modelo tiempo sincronizado')).catch((er) => console.error(' Error modelo tiempo:', er.message));
+    await ModeloRol.sync().then(() => console.log('Modelo rol sincronizado')).catch((er) => console.error(' Error modelo rol:', er.message));
+    
+    // Paso 2: Crear tabla junction después de que existan las tablas padre
     await crearTablasJunction();
-	await ModeloPermiso.sync().then(() => console.log('Modelo permiso sincronizado')).catch((er) => console.error('Error modelo permiso:', er.message));
-    await ModeloTiempo.sync().then(() => console.log('Modelo tiempo sincronizado')).catch((er) => console.error('Error modelo tiempo:', er.message));
-    await ModeloRol.sync().then(() => console.log('Modelo rol sincronizado')).catch((er) => console.error('Error modelo rol:', er.message));
-    await ModeloUsuario.sync().then(() => console.log('Modelo usuario sincronizado')).catch((er) => console.error('Error modelo usuario:', er.message));
-    await ModeloEmpleado.sync().then(() => console.log('Modelo empleado sincronizado')).catch((er) => console.error('Error modelo empleado:', er.message));
-    await ModeloCompradorVendedor.sync().then(() => console.log('Modelo comprador/vendedor sincronizado')).catch((er) => console.error('Error modelo comprador/vendedor:', er.message));
-    await ModeloVehiculo.sync().then(() => console.log('Modelo vehiculo sincronizado')).catch((er) => console.error('Error modelo vehiculo:', er.message));
-    await ModeloImagenVehiculo.sync().then(() => console.log('Modelo imagen vehiculo sincronizado')).catch((er) => console.error('Error modelo imagen vehiculo:', er.message));
-    await ModeloApuesta.sync().then(() => console.log('Modelo apuesta sincronizado')).catch((er) => console.error('Error modelo apuesta:', er.message));
-    await ModeloCompraDirecta.sync().then(() => console.log('Modelo compra directa sincronizado')).catch((er) => console.error('Error modelo compra directa:', er.message));
-    await ModeloVentas.sync().then(() => console.log('Modelo ventas sincronizado')).catch((er) => console.error('Error modelo ventas:', er.message));
-    await ModeloVentaParticipante.sync().then(() => console.log('Modelo venta participante sincronizado')).catch((er) => console.error('Error modelo venta participante:', er.message));
-	await ModeloReporteVenta.sync().then(() => console.log('Modelo reporte de venta sincronizado')).catch((er) => console.error('Error modelo reporte de venta:', er.message));
-    await ModeloNotificacion.sync().then(() => console.log('Modelo notificacion sincronizado')).catch((er) => console.error('Error modelo notificacion:', er.message));
-    await ModeloRevisionCompra.sync().then(() => console.log('Modelo revision compra sincronizado')).catch((er) => console.error('Error modelo revision compra:', er.message));
-    await ModeloTituloVehiculo.sync().then(() => console.log('Modelo titulo vehiculo sincronizado')).catch((er) => console.error('Error modelo titulo vehiculo:', er.message));
+    
+    // Paso 3: Sincronizar Usuario (depende de Rol)
+    await ModeloUsuario.sync().then(() => console.log(' Modelo usuario sincronizado')).catch((er) => console.error(' Error modelo usuario:', er.message));
+    
+    // Paso 4: Sincronizar modelos que dependen de Usuario
+    await ModeloEmpleado.sync().then(() => console.log('Modelo empleado sincronizado')).catch((er) => console.error(' Error modelo empleado:', er.message));
+    await ModeloCompradorVendedor.sync().then(() => console.log(' Modelo comprador/vendedor sincronizado')).catch((er) => console.error(' Error modelo comprador/vendedor:', er.message));
+    await ModeloVehiculo.sync().then(() => console.log('Modelo vehiculo sincronizado')).catch((er) => console.error(' Error modelo vehiculo:', er.message));
+    
+    // Paso 5: Sincronizar modelos que dependen de Vehículo
+    await ModeloImagenVehiculo.sync().then(() => console.log('Modelo imagen vehiculo sincronizado')).catch((er) => console.error(' Error modelo imagen vehiculo:', er.message));
+    await ModeloTituloVehiculo.sync().then(() => console.log('Modelo titulo vehiculo sincronizado')).catch((er) => console.error(' Error modelo titulo vehiculo:', er.message));
+    
+    // Paso 6: Sincronizar modelos de transacciones
+    await ModeloApuesta.sync().then(() => console.log('Modelo apuesta sincronizado')).catch((er) => console.error(' Error modelo apuesta:', er.message));
+    await ModeloCompraDirecta.sync().then(() => console.log(' Modelo compra directa sincronizado')).catch((er) => console.error(' Error modelo compra directa:', er.message));
+    await ModeloVentas.sync().then(() => console.log('Modelo ventas sincronizado')).catch((er) => console.error(' Error modelo ventas:', er.message));
+    await ModeloVentaParticipante.sync().then(() => console.log('Modelo venta participante sincronizado')).catch((er) => console.error(' Error modelo venta participante:', er.message));
+    
+    // Paso 7: Sincronizar modelos de reporting (dependen de Usuario y Vehículo)
+	await ModeloReporteVenta.sync().then(() => console.log(' Modelo reporte de venta sincronizado')).catch((er) => console.error(' Error modelo reporte de venta:', er.message));
+    await ModeloRevisionCompra.sync().then(() => console.log('Modelo revision compra sincronizado')).catch((er) => console.error(' Error modelo revision compra:', er.message));
+    await ModeloNotificacion.sync().then(() => console.log('Modelo notificacion sincronizado')).catch((er) => console.error(' Error modelo notificacion:', er.message));
 
     console.log('Todos los modelos sincronizados\n');
     
@@ -113,30 +135,35 @@ db.authenticate().then(async () => {
 
 app.set('port', process.env.PORT || 3000);
 
-// Iniciar el servidor después de configurar todo
-app.listen(app.get('port'), () => {
-    console.log('Servidor iniciado en el puerto', app.get('port'));
-    console.log('API disponible en: http://localhost:' + app.get('port') + '/api');
-    console.log('Documentacion Swagger: http://localhost:' + app.get('port') + '/api-docs');
-});
+// Configurar middleware ANTES de las rutas
 app.use(morgan('common'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use('/vehiculoimagen', express.static('public/vehiculoimagen'));
+
+// Configurar documentación Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Configurar rutas de la API
 app.use('/api/auth', rutasAuth);
 app.use('/api/roles', rutasRol);
 app.use('/api/permisos', rutasPermisos);
 app.use('/api/usuarios', rutasUsuario);
 app.use('/api/empleados', rutasEmpleado);
 app.use('/api/compradoresvendedores', rutasCompradorVendedor);
-app.use('/api/vehiculos', rutasVehiculo);
+app.use('/api/vehiculo', rutasVehiculo); 
 app.use('/api/imagenesvehiculo', rutasImagenVehiculo);
-app.use('/api/tiempos', rutasTiempo);
-app.use('/api/apuestas', rutasApuesta);
-app.use('/api/comprasdirectas', rutasCompraDirecta);
-app.use('/api/ventas', rutasVentas);
+app.use('/api/tiempo', rutasTiempo);
+app.use('/api/apuesta', rutasApuesta);
+app.use('/api/compradirecta', rutasCompraDirecta);
+app.use('/api/venta', rutasVentas);
 app.use('/api/reportesventa', rutasReporteVenta);
 app.use('/api/notificaciones', rutasNotificacion);
 app.use('/api/revisionescompra', rutasRevisionCompra);
 app.use('/api/titulovehiculo', rutasTituloVehiculo);
+
+app.listen(app.get('port'), () => {
+    console.log('Servidor iniciado en el puerto', app.get('port'));
+    console.log('API disponible en: http://localhost:' + app.get('port') + '/api');
+    console.log('Documentacion Swagger: http://localhost:' + app.get('port') + '/api-docs');
+});

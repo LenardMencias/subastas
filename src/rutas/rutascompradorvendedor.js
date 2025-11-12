@@ -9,6 +9,7 @@ const rutas = Router();
  * /compradoresvendedores/listar:
  *  get:
  *    summary: Listar compradores/vendedores
+ *    tags: [CompradorVendedor]
  *    responses:
  *      200:
  *        description: Lista de compradores/vendedores
@@ -22,6 +23,7 @@ rutas.get('/listar',controladorcompradorvendedor.Listar);
  * /compradoresvendedores/buscar:
  *  get:
  *    summary: Buscar comprador/vendedor por ID
+ *    tags: [CompradorVendedor]
  *    parameters:
  *      - in: query
  *        name: id
@@ -42,6 +44,7 @@ rutas.get('/buscar',controladorcompradorvendedor.Buscar);
  * /compradoresvendedores/guardar:
  *  post:
  *    summary: Guardar un nuevo comprador/vendedor
+ *    tags: [CompradorVendedor]
  *    requestBody:
  *      required: true
  *      content:
@@ -85,6 +88,7 @@ rutas.post('/guardar',controladorcompradorvendedor.Guardar);
  * /compradoresvendedores/actualizar:
  *  put:
  *   summary: Actualizar un comprador/vendedor existente
+ *   tags: [CompradorVendedor]
  *   requestBody:
  *     required: true
  *     content:
@@ -128,6 +132,7 @@ rutas.put('/actualizar',controladorcompradorvendedor.Actualizar);
  * /compradoresvendedores/eliminar:
  *  delete:
  *    summary: Eliminar un comprador/vendedor existente
+ *    tags: [CompradorVendedor]
  *    parameters:
  *      - in: query
  *        name: id

@@ -74,7 +74,7 @@ const { verificarToken } = require('../configuraciones/auth');
 
 /**
  * @swagger
- * /api/auth/login:
+ * /auth/login:
  *   post:
  *     summary: Iniciar sesión
  *     description: Permite a clientes y empleados iniciar sesión con email y contraseña
@@ -131,7 +131,7 @@ router.post('/login', validacionLogin, controladorAuth.iniciarSesion);
 
 /**
  * @swagger
- * /api/auth/registrar:
+ * /auth/registrar:
  *   post:
  *     summary: Registrar nuevo usuario
  *     description: Permite registrar un nuevo usuario para pruebas de apuestas
@@ -178,7 +178,7 @@ router.post('/registrar', validacionRegistro, controladorAuth.registrar);
 
 /**
  * @swagger
- * /api/auth/perfil:
+ * /auth/perfil:
  *   get:
  *     summary: Obtener perfil del usuario autenticado
  *     description: Endpoint protegido que retorna información del usuario autenticado
@@ -226,7 +226,7 @@ router.get('/perfil', verificarToken, (req, res) => {
 
 /**
  * @swagger
- * /api/auth/solicitar-recuperacion:
+ * /auth/solicitar-recuperacion:
  *   post:
  *     summary: Solicitar recuperación de contraseña
  *     description: Envía un token de 6 dígitos al email del usuario para recuperar su contraseña
@@ -268,7 +268,7 @@ router.post('/solicitar-recuperacion', validacionRecuperacion, controladorAuth.s
 
 /**
  * @swagger
- * /api/auth/cambiar-contrasena:
+ * /auth/cambiar-contrasena:
  *   post:
  *     summary: Cambiar contraseña con token
  *     description: Cambia la contraseña del usuario usando el token de recuperación
@@ -311,7 +311,7 @@ router.post('/cambiar-contrasena', validacionCambioContrasena, controladorAuth.c
 
 /**
  * @swagger
- * /api/auth/verificar-token:
+ * /auth/verificar-token:
  *   post:
  *     summary: Verificar token de recuperación
  *     description: Verifica si un token de recuperación es válido (sin cambiar la contraseña)

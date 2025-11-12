@@ -9,7 +9,7 @@ const rutas = Router();
  * /permisos/listar:
  *  get:
  *    summary: Listar permisos
- *    tags: [Permisos]
+ *    tags: [Permiso]
  *    responses:
  *      200:
  *        description: Lista de permisos
@@ -23,7 +23,7 @@ rutas.get('/listar',controladorpermisos.Listar);
  * /permisos/buscar:
  *  get:
  *    summary: Buscar permiso por ID
- *    tags: [Permisos]
+ *    tags: [Permiso]
  *    parameters:
  *      - in: query
  *        name: id
@@ -46,7 +46,7 @@ rutas.get('/buscar',controladorpermisos.Buscar);
  * /permisos/guardar:
  *  post:
  *    summary: Guardar un nuevo permiso
- *    tags: [Permisos]
+ *    tags: [Permiso]
  *    requestBody:
  *      required: true
  *      content:
@@ -81,7 +81,7 @@ rutas.post('/guardar',controladorpermisos.Guardar);
  * /permisos/actualizar:
  *  put:
  *   summary: Actualizar un permiso existente
- *   tags: [Permisos]
+ *   tags: [Permiso]
  *   requestBody:
  *     required: true
  *     content:
@@ -120,7 +120,7 @@ rutas.put('/actualizar',controladorpermisos.Actualizar);
  * /permisos/eliminar:
  *  delete:
  *    summary: Eliminar un permiso existente
- *    tags: [Permisos]
+ *    tags: [Permiso]
  *    parameters:
  *      - in: query
  *        name: id
@@ -143,7 +143,7 @@ rutas.delete('/eliminar',controladorpermisos.Eliminar);
  * /permisos/asignar:
  *  post:
  *    summary: Asignar permiso a un rol
- *    tags: [Permisos]
+ *    tags: [Permiso]
  *    requestBody:
  *      required: true
  *      content:
@@ -175,7 +175,7 @@ rutas.post('/asignar',controladorpermisos.AsignarARol);
  * /permisos/remover:
  *  post:
  *    summary: Remover permiso de un rol
- *    tags: [Permisos]
+ *    tags: [Permiso]
  *    requestBody:
  *      required: true
  *      content:

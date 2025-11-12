@@ -9,6 +9,7 @@ const rutas = Router();
  * /venta/listar:
  *  get:
  *    summary: Listar ventas
+ *    tags: [Venta]
  *    responses:
  *      200:
  *        description: Lista de ventas
@@ -22,6 +23,7 @@ rutas.get('/listar',controladorventas.Listar);
  * /venta/buscar:
  *  get:
  *    summary: Buscar venta por ID
+ *    tags: [Venta]
  *    parameters:
  *      - in: query
  *        name: id
@@ -42,9 +44,10 @@ rutas.get('/buscar',controladorventas.Buscar);
  * /venta/estadisticas:
  *  get:
  *    summary: Obtener estadísticas de ventas
+ *    tags: [Venta]
  *    responses:
  *      200:
- *        description: Estadísticas obtenidas
+ *        description: Estadísticas de ventas
  *      500:
  *        description: Error al obtener estadísticas
  */

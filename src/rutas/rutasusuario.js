@@ -8,6 +8,7 @@ const rutas = Router();
  * /usuarios/listar:
  *   get:
  *     summary: Listar usuarios
+ *     tags: [Usuario]
  *     responses:
  *       200:
  *         description: Lista de usuarios
@@ -21,6 +22,7 @@ rutas.get('/listar', controladorusuario.Listar);
  * /usuarios/buscar:
  *   get:
  *     summary: Buscar un usuario por ID
+ *     tags: [Usuario]
  *     parameters:
  *       - in: query
  *         name: id
@@ -115,6 +117,7 @@ rutas.post('/guardar', controladorusuario.Guardar);
  * /usuarios/actualizar:
  *   put:
  *     summary: Actualizar un usuario existente
+ *     tags: [Usuario]
  *     requestBody:
  *       required: true
  *       content:
@@ -150,6 +153,7 @@ rutas.put('/actualizar', controladorusuario.Actualizar);
  * /usuarios/eliminar:
  *   delete:
  *     summary: Eliminar un usuario existente
+ *     tags: [Usuario]
  *     parameters:
  *       - in: query
  *         name: id

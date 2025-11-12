@@ -9,7 +9,7 @@ const rutas = Router();
  * /roles/listar:
  *   get:
  *     summary: Listar roles
- *     tags: [Roles]
+ *     tags: [Rol]
  *     description: Obtiene una lista de todos los roles
  *     responses:
  *       200:
@@ -28,7 +28,7 @@ rutas.get('/listar', controladorrol.Listar);
  * /roles/buscar:
  *   get:
  *     summary: Buscar un rol por ID
- *     tags: [Roles]
+ *     tags: [Rol]
  *     description: Obtiene los datos de un rol específico por su ID
  *     parameters:
  *       - in: query
@@ -60,7 +60,7 @@ rutas.get('/buscar',
  * /roles/guardar:
  *   post:
  *     summary: Guardar un nuevo rol
- *     tags: [Roles]
+ *     tags: [Rol]
  *     description: Crea un nuevo rol
  *     requestBody:
  *       required: true
@@ -110,7 +110,7 @@ rutas.post('/guardar',
  * /roles/actualizar:
  *   put:
  *     summary: Actualizar un rol existente
- *     tags: [Roles]
+ *     tags: [Rol]
  *     description: Actualiza los datos de un rol
  *     parameters:
  *       - in: query
@@ -168,7 +168,7 @@ rutas.put('/actualizar',
  * /roles/eliminar:
  *   delete:
  *     summary: Eliminar un rol
- *     tags: [Roles]
+ *     tags: [Rol]
  *     description: Elimina un rol por su ID
  *     parameters:
  *       - in: query

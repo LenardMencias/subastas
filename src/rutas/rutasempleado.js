@@ -9,6 +9,7 @@ const rutas = Router();
  * /empleados/listar:
  *  get:
  *    summary: Listar empleados
+ *    tags: [Empleado]
  *    responses:
  *      200:
  *        description: Lista de empleados
@@ -22,6 +23,7 @@ rutas.get('/listar',controladorempleado.Listar);
  * /empleados/buscar:
  *  get:
  *    summary: Buscar empleado por ID
+ *    tags: [Empleado]
  *    parameters:
  *      - in: query
  *        name: id
@@ -42,6 +44,7 @@ rutas.get('/buscar',controladorempleado.Buscar);
  * /empleados/guardar:
  *  post:
  *    summary: Guardar un nuevo empleado
+ *    tags: [Empleado]
  *    requestBody:
  *      required: true
  *      content:
@@ -72,6 +75,7 @@ rutas.post('/guardar',controladorempleado.Guardar);
  * /empleados/actualizar:
  *  put:
  *   summary: Actualizar un empleado existente
+ *   tags: [Empleado]
  *   requestBody:
  *     required: true
  *     content:
@@ -104,6 +108,7 @@ rutas.put('/actualizar',controladorempleado.Actualizar);
  * /empleados/eliminar:
  *  delete:
  *    summary: Eliminar un empleado existente
+ *    tags: [Empleado]
  *    parameters:
  *      - in: query
  *        name: id
