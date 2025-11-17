@@ -233,15 +233,192 @@ rutas.put('/finalizar',
  */
 rutas.get('/tiempos', controladorApuesta.ListarTiempos);
 
-// Finalizar subasta y determinar ganador
+/**
+ * @swagger
+ * /apuesta/finalizar:
+ *  post:
+ *    summary: Finalizar subasta completa y determinar ganador automáticamente
+ *    tags: [Apuesta]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            required:
+ *              - vehiculoId
+ *            properties:
+ *              vehiculoId:
+ *                type: integer
+ *                description: ID del vehículo cuya subasta se va a finalizar
+ *                example: 3
+ *    responses:
+ *      200:
+ *        description: Subasta finalizada exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                msj:
+ *                  type: string
+ *                  example: "¡Subasta finalizada exitosamente! El vehículo ya no está disponible."
+ *                ganador:
+ *                  type: object
+ *                  properties:
+ *                    apuestaId:
+ *                      type: integer
+ *                    usuario:
+ *                      type: string
+ *                    email:
+ *                      type: string
+ *                    monto:
+ *                      type: number
+ *                    vehiculo:
+ *                      type: string
+ *                    fechaFinalizacion:
+ *                      type: string
+ *                      format: date-time
+ *                totalParticipantes:
+ *                  type: integer
+ *                resumenApuestas:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      usuario:
+ *                        type: string
+ *                      monto:
+ *                        type: number
+ *                      esGanador:
+ *                        type: boolean
+ *                vehiculoEstado:
+ *                  type: string
+ *                  example: "No disponible para futuras transacciones"
+ *      400:
+ *        description: Error de validación - vehiculoId requerido
+ *      404:
+ *        description: No hay apuestas activas para este vehículo
+ *      500:
+ *        description: Error interno del servidor
+ */
 rutas.post('/finalizar', [
     body('vehiculoId').isInt().withMessage('vehiculoId debe ser un número entero')
 ], controladorApuesta.FinalizarSubasta);
 
-// Verificar subastas vencidas automáticamente
+/**
+ * @swagger
+ * /apuesta/verificar-vencidas:
+ *  post:
+ *    summary: Verificar y finalizar automáticamente todas las subastas vencidas
+ *    tags: [Apuesta]
+ *    description: Busca todas las apuestas activas que han superado su fechaFin y las finaliza automáticamente, declarando ganadores
+ *    responses:
+ *      200:
+ *        description: Proceso completado exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                msj:
+ *                  type: string
+ *                  example: "Se finalizaron 3 subastas automáticamente"
+ *                subastasFinalizadas:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      vehiculo:
+ *                        type: string
+ *                        example: "Ford F-150 2021"
+ *                      ganador:
+ *                        type: string
+ *                        example: "Pedro Gonzalez"
+ *                      montoGanador:
+ *                        type: number
+ *                        example: 25000
+ *                      totalParticipantes:
+ *                        type: integer
+ *                        example: 7
+ *                      fechaVencimiento:
+ *                        type: string
+ *                        format: date-time
+ *                      vehiculoEstado:
+ *                        type: string
+ *                        example: "No disponible para futuras transacciones"
+ *      500:
+ *        description: Error interno del servidor
+ */
 rutas.post('/verificar-vencidas', controladorApuesta.VerificarSubastasVencidas);
 
-// Estadísticas de subasta
+/**
+ * @swagger
+ * /apuesta/estadisticas/{vehiculoId}:
+ *  get:
+ *    summary: Obtener estadísticas detalladas de una subasta por vehículo
+ *    tags: [Apuesta]
+ *    parameters:
+ *      - in: path
+ *        name: vehiculoId
+ *        required: true
+ *        schema:
+ *          type: integer
+ *        description: ID del vehículo para obtener estadísticas
+ *        example: 3
+ *    responses:
+ *      200:
+ *        description: Estadísticas de la subasta obtenidas exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                vehiculo:
+ *                  type: object
+ *                  properties:
+ *                    id:
+ *                      type: integer
+ *                    marca:
+ *                      type: string
+ *                    modelo:
+ *                      type: string
+ *                    anio:
+ *                      type: integer
+ *                totalApuestas:
+ *                  type: integer
+ *                  example: 7
+ *                montoMinimo:
+ *                  type: number
+ *                  example: 15000
+ *                montoMaximo:
+ *                  type: number
+ *                  example: 25000
+ *                montoPromedio:
+ *                  type: number
+ *                  example: 20142.86
+ *                estadoSubasta:
+ *                  type: string
+ *                  example: "activa"
+ *                participantes:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      usuario:
+ *                        type: string
+ *                      monto:
+ *                        type: number
+ *                      fechaApuesta:
+ *                        type: string
+ *                        format: date-time
+ *                      esGanador:
+ *                        type: boolean
+ *      404:
+ *        description: No se encontraron apuestas para este vehículo
+ *      500:
+ *        description: Error interno del servidor
+ */
 rutas.get('/estadisticas/:vehiculoId', controladorApuesta.EstadisticasSubasta);
 
 module.exports = rutas;

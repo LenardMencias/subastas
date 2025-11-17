@@ -22,13 +22,14 @@ exports.Listar = async (req, res) => {
     try {
         const revisiones = await ModeloRevisionCompra.findAll({ 
             include: [
-                { model: ModeloVehiculo, as: 'vehiculo' },
-                { model: ModeloUsuario, as: 'usuario' }
+                { model: ModeloVehiculo, foreignKey: 'vehiculoId' },
+                { model: ModeloUsuario, foreignKey: 'usuarioId' }
             ]
         });
         res.status(200).json(revisiones);
     }
     catch (error) {
+        console.error('Error en controlador revision compra:', error);
         res.status(500).json({ error: 'Error al obtener las revisiones de compra' });
     }
 };
