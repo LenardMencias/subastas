@@ -111,17 +111,40 @@ exports.Guardar = async (req, res) => {
         // Caso 2: Los vehículos solo para subasta (sin precio de compra directa) siempre pueden subastarse
         // Caso 3: Los vehículos con compra directa habilitada también pueden subastarse
         
-        // Verificar si ya hay una subasta activa para este vehículo
-        const apuestaExistente = await modeloApuesta.findOne({
+        // VALIDACIONES DE MONTO
+        
+        // 1. Validar monto mínimo basado en precio de compra directa
+        if (vehiculo.precioCompraDirecta && vehiculo.precioCompraDirecta > 0) {
+            if (parseFloat(monto) < parseFloat(vehiculo.precioCompraDirecta)) {
+                return res.status(400).json({ 
+                    msj: `El monto de la apuesta debe ser igual o mayor al precio de compra directa: $${vehiculo.precioCompraDirecta}`,
+                    montoMinimo: vehiculo.precioCompraDirecta
+                });
+            }
+        }
+        
+        // 2. Verificar apuestas existentes para este vehículo
+        const apuestasExistentes = await modeloApuesta.findAll({
             where: { 
                 vehiculoId: vehiculoId,
                 estado: 'activa'
-            }
+            },
+            order: [['monto', 'DESC']]
         });
         
-        if (apuestaExistente) {
-            // Permitir más apuestas en la misma subasta activa
-            console.log('Agregando apuesta a subasta existente');
+        // 3. Validar que la nueva apuesta supere la más alta existente
+        if (apuestasExistentes.length > 0) {
+            const apuestaMasAlta = apuestasExistentes[0];
+            if (parseFloat(monto) <= parseFloat(apuestaMasAlta.monto)) {
+                return res.status(400).json({ 
+                    msj: `Su apuesta debe ser mayor a la apuesta más alta actual: $${apuestaMasAlta.monto}`,
+                    montoMinimo: parseFloat(apuestaMasAlta.monto) + 0.01,
+                    apuestaMasAlta: apuestaMasAlta.monto
+                });
+            }
+            console.log('Agregando apuesta superior a subasta existente');
+        } else {
+            console.log('Iniciando nueva subasta para este vehículo');
         }
 
         // Obtener empleado (usar el primero disponible)
@@ -141,7 +164,12 @@ exports.Guardar = async (req, res) => {
 
         res.status(201).json({
             mensaje: 'Apuesta creada exitosamente',
-            apuesta: nuevaApuesta
+            apuesta: nuevaApuesta,
+            token: req.token,
+            usuario: {
+                id: req.userId,
+                rol: req.userRole
+            }
         });
 
     } catch (error) {
@@ -389,6 +417,58 @@ exports.VerificarSubastasVencidas = async (req, res) => {
 
     } catch (error) {
         console.error('Error al verificar subastas vencidas:', error);
+        res.status(500).json({ msj: 'Error interno del servidor' });
+    }
+};
+
+// Obtener monto mínimo requerido para apostar en un vehículo
+exports.ObtenerMontoMinimo = async (req, res) => {
+    try {
+        const { vehiculoId } = req.params;
+        
+        // Obtener información del vehículo
+        const vehiculo = await modeloVehiculos.findByPk(vehiculoId);
+        if (!vehiculo) {
+            return res.status(404).json({ msj: 'Vehículo no encontrado' });
+        }
+
+        // Obtener la apuesta más alta actual para este vehículo
+        const apuestaMasAlta = await modeloApuesta.findOne({
+            where: { 
+                vehiculoId: vehiculoId,
+                estado: 'activa'
+            },
+            order: [['monto', 'DESC']]
+        });
+
+        let montoMinimo;
+        let razon;
+
+        if (apuestaMasAlta) {
+            // Si hay apuestas, el monto mínimo es la apuesta más alta + 0.01
+            montoMinimo = parseFloat(apuestaMasAlta.monto) + 0.01;
+            razon = `Debe superar la apuesta actual más alta de $${apuestaMasAlta.monto}`;
+        } else if (vehiculo.precioCompraDirecta && vehiculo.precioCompraDirecta > 0) {
+            // Si no hay apuestas pero hay precio de compra directa, usar ese como mínimo
+            montoMinimo = parseFloat(vehiculo.precioCompraDirecta);
+            razon = `Debe ser igual o mayor al precio de compra directa de $${vehiculo.precioCompraDirecta}`;
+        } else {
+            // Si no hay ni apuestas ni precio de compra directa, monto mínimo 1
+            montoMinimo = 1;
+            razon = 'Monto mínimo para iniciar subasta';
+        }
+
+        res.json({
+            vehiculo: `${vehiculo.marca} ${vehiculo.modelo}`,
+            montoMinimo: montoMinimo,
+            razon: razon,
+            precioCompraDirecta: vehiculo.precioCompraDirecta,
+            apuestaMasAlta: apuestaMasAlta ? apuestaMasAlta.monto : null,
+            tieneApuestasActivas: !!apuestaMasAlta
+        });
+
+    } catch (error) {
+        console.error('Error al obtener monto mínimo:', error);
         res.status(500).json({ msj: 'Error interno del servidor' });
     }
 };

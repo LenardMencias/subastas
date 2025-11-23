@@ -116,6 +116,17 @@ rutas.get('/buscar',
  *              usuarioId:
  *                type: integer
  *                description: ID del usuario propietario
+ *              precioCompraDirecta:
+ *                type: number
+ *                format: decimal
+ *                minimum: 0
+ *                description: Precio para compra directa (opcional)
+ *                example: 25000.00
+ *              disponibleCompraDirecta:
+ *                type: boolean
+ *                description: Indica si el vehículo está disponible para compra directa
+ *                default: false
+ *                example: true
  *    responses:
  *      201:
  *        description: Vehículo guardado exitosamente
@@ -175,7 +186,13 @@ rutas.post('/guardar', [
         .isInt().withMessage('El ID del título debe ser un número entero'),
     body('usuarioId')
         .notEmpty().withMessage('El ID del usuario es requerido')
-        .isInt().withMessage('El ID del usuario debe ser un número entero')
+        .isInt().withMessage('El ID del usuario debe ser un número entero'),
+    body('precioCompraDirecta')
+        .optional()
+        .isFloat({ min: 0 }).withMessage('El precio de compra directa debe ser un número positivo'),
+    body('disponibleCompraDirecta')
+        .optional()
+        .isBoolean().withMessage('Disponible compra directa debe ser verdadero o falso')
 ], controladorvehiculo.Guardar);
 
 /**
@@ -239,6 +256,16 @@ rutas.post('/guardar', [
  *             usuarioId:
  *               type: integer
  *               description: Nuevo ID del usuario (opcional)
+ *             precioCompraDirecta:
+ *               type: number
+ *               format: decimal
+ *               minimum: 0
+ *               description: Nuevo precio para compra directa (opcional)
+ *               example: 30000.00
+ *             disponibleCompraDirecta:
+ *               type: boolean
+ *               description: Nueva disponibilidad para compra directa (opcional)
+ *               example: true
  *   responses:
  *     200:
  *       description: Vehículo actualizado exitosamente
@@ -303,7 +330,13 @@ rutas.put('/actualizar', [
         .isInt().withMessage('El ID del título debe ser un número entero'),
     body('usuarioId')
         .optional()
-        .isInt().withMessage('El ID del usuario debe ser un número entero')
+        .isInt().withMessage('El ID del usuario debe ser un número entero'),
+    body('precioCompraDirecta')
+        .optional()
+        .isFloat({ min: 0 }).withMessage('El precio de compra directa debe ser un número positivo'),
+    body('disponibleCompraDirecta')
+        .optional()
+        .isBoolean().withMessage('Disponible compra directa debe ser verdadero o falso')
 ], controladorvehiculo.Actualizar);
 
 /**

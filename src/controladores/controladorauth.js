@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 const usuarioModelo = require('../modelos/usuario');
 const { rol: rolModelo } = require('../modelos/rol');
-const { enviarEmailRecuperacion } = require('../configuraciones/email');
+const { enviarEmailRecuperacion, enviarEmailConfirmacionCuenta } = require('../configuraciones/email');
 
 // Función para generar PIN de 6 dígitos
 function generarPin(longitud = 6) {
@@ -60,11 +60,15 @@ exports.iniciarSesion = async (req, res) => {
                 rolInfo = roles[0] || null;
             }
 
-            // Generar JWT token
+            // Generar JWT token con información completa
             const token = jwt.sign(
                 { 
-                    userId: buscarUsuario.id, 
-                    role: rolInfo?.nombre || 'cliente' 
+                    userId: buscarUsuario.id,
+                    email: buscarUsuario.email,
+                    nombre: buscarUsuario.nombre,
+                    role: rolInfo?.nombre || 'cliente',
+                    rolId: rolInfo?.id || 1,
+                    iat: Math.floor(Date.now() / 1000)
                 },
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
@@ -78,6 +82,16 @@ exports.iniciarSesion = async (req, res) => {
                     email: buscarUsuario.email,
                     estado: buscarUsuario.estado,
                     rol: rolInfo
+                },
+                permisos: {
+                    puede: {
+                        apostar: true,
+                        comprarDirecto: true,
+                        verVehiculos: true,
+                        gestionarVehiculos: rolInfo?.nombre !== 'cliente',
+                        editarUsuarios: rolInfo?.nombre === 'admin' || rolInfo?.nombre === 'empleado',
+                        gestionarRoles: rolInfo?.nombre === 'admin'
+                    }
                 }
             };
             res.json({ data });
@@ -152,13 +166,34 @@ exports.registrar = async (req, res) => {
             rolId: rolId
         });
         
+        // Enviar email de confirmación de cuenta
+        const emailEnviado = await enviarEmailConfirmacionCuenta(email, nombre, tipoUsuario);
+        
+        // Generar token para el usuario recién creado
+        const token = jwt.sign(
+            { 
+                userId: nuevoUsuario.id,
+                email: nuevoUsuario.email,
+                nombre: nuevoUsuario.nombre,
+                role: tipoUsuario,
+                rolId: rolId,
+                iat: Math.floor(Date.now() / 1000)
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        
         res.status(201).json({ 
             mensaje: 'Usuario registrado exitosamente',
+            emailConfirmacion: emailEnviado ? 'Email de confirmación enviado' : 'Error al enviar email de confirmación',
+            token: token,
             usuario: {
                 id: nuevoUsuario.id,
                 nombre: nuevoUsuario.nombre,
                 email: nuevoUsuario.email,
-                estado: nuevoUsuario.estado
+                estado: nuevoUsuario.estado,
+                rol: tipoUsuario,
+                rolId: rolId
             }
         });
         

@@ -1,8 +1,8 @@
-# 🚗 API de Subastas de Vehículos
+#  API de Subastas de Vehículos
 
 Una API REST completa para gestionar un sistema de subastas y venta directa de vehículos, con autenticación segura, roles y permisos, y sistema de apuestas en tiempo real.
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 - [Características](#-características)
 - [Instalación](#-instalación)
@@ -20,7 +20,7 @@ Una API REST completa para gestionar un sistema de subastas y venta directa de v
 - [Tecnologías](#-tecnologías)
 - [Contribución](#-contribución)
 
-## 🌟 Características
+##  Características
 
 - **Autenticación segura** con Argon2 y tokens únicos de 6 dígitos
 - **Sistema de roles y permisos** granular
@@ -32,7 +32,7 @@ Una API REST completa para gestionar un sistema de subastas y venta directa de v
 - **Documentación automática** con Swagger
 - **Base de datos relacional** con Sequelize ORM
 
-## 🛠 Instalación
+##  Instalación
 
 ### Prerrequisitos
 
@@ -63,7 +63,7 @@ npm install
 cp .env.example .env
 ```
 
-## ⚙️ Configuración
+##  Configuración
 
 ### Archivo `.env`
 
@@ -93,7 +93,7 @@ El servidor estará disponible en:
 - **API:** http://localhost:3000/api
 - **Documentación:** http://localhost:3000/api-docs
 
-## 🏗 Arquitectura
+##  Arquitectura
 
 ```
 src/
@@ -108,7 +108,7 @@ src/
 └── scripts/                # Scripts utilitarios
 ```
 
-## 🔐 Autenticación
+##  Autenticación
 
 El sistema utiliza autenticación basada en tokens de 6 dígitos únicos:
 
@@ -116,11 +116,11 @@ El sistema utiliza autenticación basada en tokens de 6 dígitos únicos:
 2. **Hashing:** Contraseñas hasheadas con Argon2
 3. **Autorización:** Sistema de roles y permisos granular
 
-## 📖 Guía de Uso
+## Guía de Uso
 
 ### 1. Sistema de Roles y Permisos
 
-#### 🔰 Crear Permisos
+####  Crear Permisos
 
 **Endpoint:** `POST /api/permisos/guardar`
 
@@ -190,9 +190,9 @@ El sistema utiliza autenticación basada en tokens de 6 dígitos únicos:
 }
 ```
 
-#### 🔗 Asignar Permisos a Roles
+####  Asignar Permisos a Roles
 
-> **⚠️ Nota:** La asignación de permisos a roles actualmente se maneja a través de la tabla junction `rol_permiso` directamente en la base de datos. Se puede implementar un endpoint personalizado si se requiere gestión via API.
+> ** Nota:** La asignación de permisos a roles actualmente se maneja a través de la tabla junction `rol_permiso` directamente en la base de datos. Se puede implementar un endpoint personalizado si se requiere gestión via API.
 
 **Estructura de tabla junction:**
 ```sql
@@ -202,11 +202,11 @@ INSERT INTO rol_permiso (rolId, permisoId) VALUES (1, 2);
 
 ### 2. Gestión de Usuarios
 
-#### � Flujo de Registro Completo
+####  Flujo de Registro Completo
 
 El sistema requiere crear primero los datos personales (empleado o comprador/vendedor) y después asociarlos a un usuario.
 
-#### 👔 Paso 1: Registrar Empleado
+####  Paso 1: Registrar Empleado
 
 **Endpoint:** `POST /api/empleados/guardar`
 
@@ -218,7 +218,7 @@ El sistema requiere crear primero los datos personales (empleado o comprador/ven
 }
 ```
 
-#### 👤 Paso 2: Crear Usuario y Asociar al Empleado
+####  Paso 2: Crear Usuario y Asociar al Empleado
 
 **Endpoint:** `POST /api/usuarios/guardar`
 
@@ -234,7 +234,7 @@ El sistema requiere crear primero los datos personales (empleado o comprador/ven
 }
 ```
 
-#### 🏪 Paso 1: Registrar Comprador/Vendedor
+#### Paso 1: Registrar Comprador/Vendedor
 
 **Endpoint:** `POST /api/compradoresvendedores/guardar`
 
@@ -272,19 +272,19 @@ El sistema requiere crear primero los datos personales (empleado o comprador/ven
 
 **Endpoint:** `GET /api/empleados/listar`
 
-#### 🔍 Buscar Empleado
+####  Buscar Empleado
 
 **Endpoint:** `GET /api/empleados/buscar?id=1`
 
-#### 📋 Listar Compradores/Vendedores
+####  Listar Compradores/Vendedores
 
 **Endpoint:** `GET /api/compradoresvendedores/listar`
 
-#### 🔍 Buscar Comprador/Vendedor
+####  Buscar Comprador/Vendedor
 
 **Endpoint:** `GET /api/compradoresvendedores/buscar?id=1`
 
-#### �🔑 Login
+#### � Login
 
 **Endpoint:** `POST /api/auth/login`
 
@@ -308,7 +308,7 @@ El sistema requiere crear primero los datos personales (empleado o comprador/ven
 }
 ```
 
-#### 📋 Registro Alternativo
+####  Registro Alternativo
 
 **Endpoint:** `POST /api/auth/registrar`
 
@@ -321,7 +321,7 @@ El sistema requiere crear primero los datos personales (empleado o comprador/ven
 }
 ```
 
-#### 👤 Ver Perfil (Protegido)
+#### Ver Perfil (Protegido)
 
 **Endpoint:** `GET /api/auth/perfil`
 
@@ -332,7 +332,7 @@ Authorization: Bearer {token}
 
 ### 3. Registro de Vehículos
 
-#### 🚗 Registrar Vehículo para Venta Directa
+####  Registrar Vehículo para Venta Directa
 
 **Endpoint:** `POST /api/vehiculos/guardar`
 
@@ -354,7 +354,7 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 🏁 Registrar Vehículo Solo para Subasta
+####  Registrar Vehículo Solo para Subasta
 
 ```json
 {
@@ -374,7 +374,7 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 🔄 Actualizar Vehículo
+#### Actualizar Vehículo
 
 **Endpoint:** `PUT /api/vehiculos/actualizar`
 
@@ -388,21 +388,20 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 🗑️ Eliminar Vehículo
+####  Eliminar Vehículo
 
 **Endpoint:** `DELETE /api/vehiculos/eliminar?id=1`
 
-#### 🔍 Buscar Vehículo por ID
+####  Buscar Vehículo por ID
 
 **Endpoint:** `GET /api/vehiculos/buscar?id=1`
 
-#### 📋 Listar Todos los Vehículos
-
+#### 
 **Endpoint:** `GET /api/vehiculos/listar`
 
 ### 4. Sistema de Tiempos
 
-#### ⏰ Crear Tiempos para Subastas
+####  Crear Tiempos para Subastas
 
 **Endpoint:** `POST /api/tiempos/guardar`
 
@@ -440,13 +439,13 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 📋 Listar Tiempos Disponibles
+####  Listar Tiempos Disponibles
 
 **Endpoint:** `GET /api/tiempos/listar`
 
 ### 5. Subastas y Apuestas
 
-#### 🎯 Crear Apuesta
+####  Crear Apuesta
 
 **Endpoint:** `POST /api/apuestas/guardar`
 
@@ -459,13 +458,13 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 📊 Ver Estadísticas de Subasta
+####  Ver Estadísticas de Subasta
 
 **Endpoint:** `GET /api/apuestas/estadisticas/{vehiculoId}`
 
 **Ejemplo:** `GET /api/apuestas/estadisticas/2`
 
-#### 🏆 Finalizar Subasta
+####  Finalizar Subasta
 
 **Endpoint:** `POST /api/apuestas/finalizar`
 
@@ -475,19 +474,19 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 📋 Listar Apuestas por Vehículo
+####  Listar Apuestas por Vehículo
 
 **Endpoint:** `GET /api/apuestas/listarvehiculo?vehiculoId=2`
 
-#### 📋 Listar Apuestas por Usuario
+####  Listar Apuestas por Usuario
 
 **Endpoint:** `GET /api/apuestas/listarusuario?usuarioId=1`
 
-#### ⏰ Ver Tiempos Disponibles
+####  Ver Tiempos Disponibles
 
 **Endpoint:** `GET /api/apuestas/tiempos`
 
-#### 🔄 Actualizar Apuesta
+#### Actualizar Apuesta
 
 **Endpoint:** `PUT /api/apuestas/actualizar`
 
@@ -499,13 +498,13 @@ Authorization: Bearer {token}
 }
 ```
 
-#### ⚡ Verificar Subastas Vencidas
+####  Verificar Subastas Vencidas
 
 **Endpoint:** `POST /api/apuestas/verificar-vencidas`
 
 ### 6. Compras Directas
 
-#### 💰 Realizar Compra Directa
+####  Realizar Compra Directa
 
 **Endpoint:** `POST /api/comprasdirectas/guardar`
 
@@ -517,19 +516,19 @@ Authorization: Bearer {token}
 }
 ```
 
-#### 📋 Listar Vehículos Disponibles para Compra Directa
+####  Listar Vehículos Disponibles para Compra Directa
 
 **Endpoint:** `GET /api/vehiculos/compra-directa-disponible`
 
-#### 📋 Listar Todas las Compras Directas
+####  Listar Todas las Compras Directas
 
 **Endpoint:** `GET /api/comprasdirectas/listar`
 
-#### 📋 Listar Compras de un Usuario
+####  Listar Compras de un Usuario
 
 **Endpoint:** `GET /api/comprasdirectas/listarusuario?usuarioId=3`
 
-#### 🔄 Actualizar Estado de Compra
+####  Actualizar Estado de Compra
 
 **Endpoint:** `PUT /api/comprasdirectas/actualizarestado`
 
@@ -540,11 +539,11 @@ Authorization: Bearer {token}
 }
 ```
 
-#### ❌ Cancelar Compra Directa
+####  Cancelar Compra Directa
 
 **Endpoint:** `DELETE /api/comprasdirectas/cancelar?id=1`
 
-## 📚 Documentación de la API
+##  Documentación de la API
 
 ### Swagger UI
 
@@ -570,7 +569,7 @@ La documentación completa de la API está disponible en:
 | **Reportes** | `/api/reportesventa` | Reportes de ventas |
 | **Notificaciones** | `/api/notificaciones` | Sistema de notificaciones |
 
-## 🚀 Tecnologías
+##  Tecnologías
 
 ### Backend
 - **Node.js** - Runtime de JavaScript
@@ -589,7 +588,7 @@ La documentación completa de la API está disponible en:
 - **dotenv** - Variables de entorno
 - **CORS** - Control de acceso
 
-## 🔄 Flujo de Trabajo Recomendado
+##  Flujo de Trabajo Recomendado
 
 ### 1. Configuración Inicial
 ```bash
@@ -636,7 +635,7 @@ POST /api/apuestas/guardar
 POST /api/apuestas/finalizar
 ```
 
-## 🛡 Seguridad
+##  Seguridad
 
 - **Contraseñas hasheadas** con Argon2
 - **Validación de entrada** en todas las rutas
@@ -644,7 +643,7 @@ POST /api/apuestas/finalizar
 - **Sistema de roles** granular
 - **Validación de permisos** por operación
 
-## 📝 Ejemplos de Prueba
+##  Ejemplos de Prueba
 
 ### Colección de Postman Completa
 
@@ -702,7 +701,7 @@ POST /api/apuestas/guardar
 }
 ```
 
-## 🤝 Contribución
+## Contribución
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -710,11 +709,11 @@ POST /api/apuestas/guardar
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para detalles.
 
-## 📞 Soporte
+##  Soporte
 
 Para soporte técnico o preguntas:
 - **Email:** soporte@subastas.com
@@ -723,4 +722,4 @@ Para soporte técnico o preguntas:
 
 ---
 
-**Desarrollado con ❤️ para gestionar subastas de vehículos de manera eficiente y segura.**
+**Desarrollado para gestionar subastas de vehículos de manera eficiente y segura.**

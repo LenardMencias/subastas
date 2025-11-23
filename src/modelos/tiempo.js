@@ -11,7 +11,7 @@ const Tiempo = db.define('Tiempo', {
     duracion: {
         type: DataTypes.INTEGER, // Duración en minutos
         allowNull: false,
-        defaultValue: 300 // 5 horas = 300 minutos por defecto
+        defaultValue: 300 
     },
     descripcion: {
         type: DataTypes.STRING(200),

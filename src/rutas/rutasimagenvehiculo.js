@@ -49,28 +49,56 @@ rutas.get('/listarvehiculo',
  * /imagenvehiculo/guardar:
  *  post:
  *    summary: Guardar una nueva imagen de vehículo
+ *    description: Sube una imagen de vehículo. La imagen se almacena en el servidor y se genera automáticamente la URL.
  *    tags: [ImagenVehiculo]
  *    requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *          schema:
  *            type: object
+ *            required:
+ *              - imagen
+ *              - vehiculoId
  *            properties:
- *              url:
+ *              imagen:
  *                type: string
- *                description: URL de la imagen
+ *                format: binary
+ *                description: Archivo de imagen (JPG, PNG, GIF, WebP)
+ *                example: imagen_vehiculo.jpg
  *              descripcion:
  *                type: string
- *                description: Descripción de la imagen
+ *                description: Descripción opcional de la imagen
+ *                example: "Vista frontal del vehículo"
  *              vehiculoId:
  *                type: integer
  *                description: ID del vehículo al que pertenece la imagen
+ *                example: 3
  *    responses:
  *      201:
  *        description: Imagen guardada exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: integer
+ *                  example: 1
+ *                url:
+ *                  type: string
+ *                  example: "/uploads/vehiculos/imagen_1698765432123.jpg"
+ *                descripcion:
+ *                  type: string
+ *                  example: "Vista frontal del vehículo"
+ *                vehiculoId:
+ *                  type: integer
+ *                  example: 3
+ *                createdAt:
+ *                  type: string
+ *                  format: date-time
  *      400:
- *        description: Error de validación
+ *        description: Error de validación o archivo no válido
  *      500:
  *        description: Error al guardar la imagen
  */
@@ -87,28 +115,55 @@ rutas.post('/guardar',
  * /imagenvehiculo/actualizar:
  *  put:
  *    summary: Actualizar una imagen de vehículo existente
+ *    description: Actualiza una imagen existente. Puedes cambiar la imagen, la descripción o ambos.
  *    tags: [ImagenVehiculo]
  *    requestBody:
  *      required: true
  *      content:
- *        application/json:
+ *        multipart/form-data:
  *          schema:
  *            type: object
+ *            required:
+ *              - id
  *            properties:
  *              id:
  *                type: integer
  *                description: ID de la imagen a actualizar
- *              url:
+ *                example: 1
+ *              imagen:
  *                type: string
- *                description: Nueva URL de la imagen
+ *                format: binary
+ *                description: Nuevo archivo de imagen (opcional - JPG, PNG, GIF, WebP)
+ *                example: nueva_imagen_vehiculo.jpg
  *              descripcion:
  *                type: string
- *                description: Nueva descripción de la imagen
+ *                description: Nueva descripción de la imagen (opcional)
+ *                example: "Vista lateral actualizada del vehículo"
  *    responses:
  *      200:
  *        description: Imagen actualizada exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: integer
+ *                  example: 1
+ *                url:
+ *                  type: string
+ *                  example: "/uploads/vehiculos/imagen_1698765432456.jpg"
+ *                descripcion:
+ *                  type: string
+ *                  example: "Vista lateral actualizada del vehículo"
+ *                vehiculoId:
+ *                  type: integer
+ *                  example: 3
+ *                updatedAt:
+ *                  type: string
+ *                  format: date-time
  *      400:
- *        description: Error de validación
+ *        description: Error de validación o archivo no válido
  *      404:
  *        description: Imagen no encontrada
  *      500:

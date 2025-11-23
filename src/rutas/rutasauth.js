@@ -69,8 +69,8 @@ const validacionVerificarToken = [
         .withMessage('El token debe ser numérico')
 ];
 
-// Importar middleware de autenticación
-const { verificarToken } = require('../configuraciones/auth');
+// Importar middleware de autenticación y permisos
+const { verificarToken } = require('../configuraciones/permisos');
 
 /**
  * @swagger
@@ -215,11 +215,24 @@ router.post('/registrar', validacionRegistro, controladorAuth.registrar);
 router.get('/perfil', verificarToken, (req, res) => {
     res.json({
         mensaje: "Acceso autorizado",
+        token: req.token,
         usuario: {
             id: req.userId,
             tipo: req.userType,
+            rol: req.userRole,
             email: req.usuario.email,
-            nombre: req.usuario.nombre
+            nombre: req.usuario.nombre,
+            rolInfo: req.rolInfo
+        },
+        permisos: {
+            puede: {
+                apostar: true,
+                comprarDirecto: true,
+                verVehiculos: true,
+                gestionarVehiculos: req.userRole !== 'cliente',
+                editarUsuarios: req.userRole === 'admin' || req.userRole === 'empleado',
+                gestionarRoles: req.userRole === 'admin'
+            }
         }
     });
 });
@@ -344,5 +357,99 @@ router.post('/cambiar-contrasena', validacionCambioContrasena, controladorAuth.c
  *         description: Error del servidor
  */
 router.post('/verificar-token', validacionVerificarToken, controladorAuth.verificarToken);
+
+/**
+ * @swagger
+ * /auth/permisos:
+ *   get:
+ *     summary: Consultar permisos del usuario autenticado
+ *     description: Retorna la lista completa de permisos del usuario basada en su rol
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Permisos obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Token JWT actual
+ *                 usuario:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     rol:
+ *                       type: string
+ *                     nombre:
+ *                       type: string
+ *                 permisos:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: Lista de permisos específicos
+ *                 jerarquia:
+ *                   type: object
+ *                   properties:
+ *                     nivel:
+ *                       type: integer
+ *                       description: Nivel jerárquico del rol (1-3)
+ *                     puede:
+ *                       type: object
+ *                       description: Capacidades resumidas por categoría
+ *       401:
+ *         description: Token inválido o no proporcionado
+ */
+const { PERMISOS, JERARQUIA_ROLES } = require('../configuraciones/permisos');
+router.get('/permisos', verificarToken, (req, res) => {
+    const rolUsuario = req.userRole || 'cliente';
+    const permisosUsuario = PERMISOS[rolUsuario] || [];
+    const nivelJerarquico = JERARQUIA_ROLES[rolUsuario] || 1;
+    
+    res.json({
+        token: req.token,
+        usuario: {
+            id: req.userId,
+            rol: rolUsuario,
+            nombre: req.usuario.nombre,
+            email: req.usuario.email
+        },
+        permisos: permisosUsuario,
+        jerarquia: {
+            nivel: nivelJerarquico,
+            puede: {
+                // Resumen de capacidades por categoría
+                autenticacion: permisosUsuario.some(p => p.startsWith('auth:')),
+                apuestas: {
+                    crear: permisosUsuario.includes('apuesta:crear'),
+                    listarPropias: permisosUsuario.includes('apuesta:listar-propias'),
+                    listarTodas: permisosUsuario.includes('apuesta:listar-todas'),
+                    finalizar: permisosUsuario.includes('apuesta:finalizar')
+                },
+                vehiculos: {
+                    ver: permisosUsuario.includes('vehiculo:ver'),
+                    crear: permisosUsuario.includes('vehiculo:crear'),
+                    editar: permisosUsuario.includes('vehiculo:editar'),
+                    eliminar: permisosUsuario.includes('vehiculo:eliminar')
+                },
+                usuarios: {
+                    listar: permisosUsuario.includes('usuario:listar'),
+                    editarClientes: permisosUsuario.includes('usuario:editar-clientes'),
+                    editarEmpleados: permisosUsuario.includes('usuario:editar-empleados'),
+                    editarAdmins: permisosUsuario.includes('usuario:editar-admins')
+                },
+                sistema: {
+                    gestionarRoles: permisosUsuario.includes('rol:crear'),
+                    configurar: permisosUsuario.includes('sistema:configurar'),
+                    reportes: permisosUsuario.includes('reportes:generar-todos')
+                }
+            }
+        }
+    });
+});
 
 module.exports = router;

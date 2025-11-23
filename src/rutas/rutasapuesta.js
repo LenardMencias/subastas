@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const controladorApuesta = require('../controladores/controladorapuesta');
 const { body, query } = require('express-validator');
+const { verificarToken, verificarPermiso, verificarRolMinimo } = require('../configuraciones/permisos');
 const rutas = Router();
 
 /**
@@ -15,7 +16,7 @@ const rutas = Router();
  *      500:
  *        description: Error al listar las apuestas
  */
-rutas.get('/listar', controladorApuesta.Listar);
+rutas.get('/listar', verificarToken, verificarPermiso('apuesta:listar-todas'), controladorApuesta.Listar);
 
 /**
  * @swagger
@@ -39,6 +40,8 @@ rutas.get('/listar', controladorApuesta.Listar);
  *        description: Error al listar las apuestas
  */
 rutas.get('/listarvehiculo',
+    verificarToken,
+    verificarRolMinimo('empleado'),
     query('vehiculoId')
         .isInt().withMessage('El ID del vehículo debe ser un número entero')
         .notEmpty().withMessage('El ID del vehículo es requerido'),
@@ -67,6 +70,8 @@ rutas.get('/listarvehiculo',
  *        description: Error al listar las apuestas
  */
 rutas.get('/listarusuario',
+    verificarToken,
+    verificarPermiso('apuesta:listar-propias'),
     query('usuarioId')
         .isInt().withMessage('El ID del usuario debe ser un número entero')
         .notEmpty().withMessage('El ID del usuario es requerido'),
@@ -93,7 +98,7 @@ rutas.get('/listarusuario',
  *              monto:
  *                type: number
  *                minimum: 0
- *                description: Monto de la apuesta (debe ser mayor a 0)
+ *                description: Monto de la apuesta (debe ser igual o mayor al precio de compra directa del vehículo y superior a apuestas existentes)
  *              usuarioId:
  *                type: integer
  *                description: ID del usuario que realiza la apuesta
@@ -107,11 +112,27 @@ rutas.get('/listarusuario',
  *      201:
  *        description: Apuesta creada exitosamente
  *      400:
- *        description: Error de validación
+ *        description: Error de validación - monto insuficiente o menor al requerido
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                msj:
+ *                  type: string
+ *                  example: "Su apuesta debe ser mayor a la apuesta más alta actual: $25000"
+ *                montoMinimo:
+ *                  type: number
+ *                  example: 25000.01
+ *                apuestaMasAlta:
+ *                  type: number
+ *                  example: 25000
  *      500:
  *        description: Error al crear la apuesta
  */
 rutas.post('/guardar', [
+    verificarToken,
+    verificarPermiso('apuesta:crear'),
     body('monto')
         .notEmpty().withMessage('El monto es requerido')
         .isFloat({ min: 0.01 }).withMessage('El monto debe ser un número positivo mayor a 0'),
@@ -164,6 +185,8 @@ rutas.post('/guardar', [
  *        description: Error al actualizar la apuesta
  */
 rutas.put('/actualizar', [
+    verificarToken,
+    verificarRolMinimo('empleado'),
     body('id')
         .notEmpty().withMessage('El ID es requerido')
         .isInt().withMessage('El ID debe ser un número entero'),
@@ -199,6 +222,8 @@ rutas.put('/actualizar', [
  *        description: Error al finalizar la apuesta
  */
 rutas.put('/finalizar',
+    verificarToken,
+    verificarPermiso('apuesta:finalizar'),
     query('id')
         .notEmpty().withMessage('El ID es requerido')
         .isInt().withMessage('El ID debe ser un número entero'),
@@ -231,7 +256,7 @@ rutas.put('/finalizar',
  *      500:
  *        description: Error al listar los tiempos
  */
-rutas.get('/tiempos', controladorApuesta.ListarTiempos);
+rutas.get('/tiempos', verificarToken, controladorApuesta.ListarTiempos);
 
 /**
  * @swagger
@@ -303,6 +328,8 @@ rutas.get('/tiempos', controladorApuesta.ListarTiempos);
  *        description: Error interno del servidor
  */
 rutas.post('/finalizar', [
+    verificarToken,
+    verificarPermiso('apuesta:finalizar'),
     body('vehiculoId').isInt().withMessage('vehiculoId debe ser un número entero')
 ], controladorApuesta.FinalizarSubasta);
 
@@ -350,7 +377,54 @@ rutas.post('/finalizar', [
  *      500:
  *        description: Error interno del servidor
  */
-rutas.post('/verificar-vencidas', controladorApuesta.VerificarSubastasVencidas);
+rutas.post('/verificar-vencidas', verificarToken, verificarRolMinimo('empleado'), controladorApuesta.VerificarSubastasVencidas);
+
+/**
+ * @swagger
+ * /apuesta/monto-minimo/{vehiculoId}:
+ *  get:
+ *    summary: Obtener el monto mínimo requerido para apostar en un vehículo
+ *    tags: [Apuesta]
+ *    parameters:
+ *      - in: path
+ *        name: vehiculoId
+ *        required: true
+ *        schema:
+ *          type: integer
+ *        description: ID del vehículo
+ *        example: 3
+ *    responses:
+ *      200:
+ *        description: Monto mínimo obtenido exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                vehiculo:
+ *                  type: string
+ *                  example: "Ford F-150 2021"
+ *                montoMinimo:
+ *                  type: number
+ *                  example: 25000.01
+ *                razon:
+ *                  type: string
+ *                  example: "Debe superar la apuesta actual más alta de $25000"
+ *                precioCompraDirecta:
+ *                  type: number
+ *                  example: 20000
+ *                apuestaMasAlta:
+ *                  type: number
+ *                  example: 25000
+ *                tieneApuestasActivas:
+ *                  type: boolean
+ *                  example: true
+ *      404:
+ *        description: Vehículo no encontrado
+ *      500:
+ *        description: Error interno del servidor
+ */
+rutas.get('/monto-minimo/:vehiculoId', verificarToken, controladorApuesta.ObtenerMontoMinimo);
 
 /**
  * @swagger
@@ -419,6 +493,6 @@ rutas.post('/verificar-vencidas', controladorApuesta.VerificarSubastasVencidas);
  *      500:
  *        description: Error interno del servidor
  */
-rutas.get('/estadisticas/:vehiculoId', controladorApuesta.EstadisticasSubasta);
+rutas.get('/estadisticas/:vehiculoId', verificarToken, verificarRolMinimo('empleado'), controladorApuesta.EstadisticasSubasta);
 
 module.exports = rutas;

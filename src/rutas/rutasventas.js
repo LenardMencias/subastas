@@ -90,6 +90,7 @@ rutas.post('/guardar',controladorventas.Guardar);
  * /venta/agregarparticipante:
  *  post:
  *    summary: Agregar participante a una venta
+ *    description: Permite que un comprador/vendedor participe en una venta con una oferta específica
  *    tags: [Venta]
  *    requestBody:
  *      required: true
@@ -97,22 +98,49 @@ rutas.post('/guardar',controladorventas.Guardar);
  *        application/json:
  *          schema:
  *            type: object
+ *            required:
+ *              - ventaId
+ *              - compradorVendedorId
+ *              - montoOferta
  *            properties:
  *              ventaId:
  *                type: integer
+ *                description: ID de la venta en la que se quiere participar
+ *                example: 6
  *              compradorVendedorId:
  *                type: integer
+ *                description: ID del comprador/vendedor que participa
+ *                example: 1
  *              montoOferta:
  *                type: number
+ *                format: decimal
+ *                minimum: 0
+ *                description: Monto de la oferta que realiza el participante
+ *                example: 1100.00
  *              comentario:
  *                type: string
+ *                maxLength: 500
+ *                description: Comentario opcional del participante
+ *                example: "Mi oferta por este vehículo"
  *    responses:
  *      201:
- *        description: Participante agregado
+ *        description: Participante agregado exitosamente
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: "Participante agregado exitosamente"
+ *                participante:
+ *                  type: object
  *      400:
- *        description: Errores de validación
+ *        description: Errores de validación o datos incorrectos
+ *      404:
+ *        description: Venta o comprador/vendedor no encontrado
  *      500:
- *        description: Error al agregar participante
+ *        description: Error interno del servidor
  */
 rutas.post('/agregarparticipante',controladorventas.AgregarParticipante);
 
